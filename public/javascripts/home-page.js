@@ -1,3 +1,7 @@
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
+
 const imagesContainer = document.querySelector('#images-container');
 
 fetch('/get-posts')

@@ -31,9 +31,9 @@ function handleSubmit(event) {
   }).then((response) => {
     if (response.status === 200) {
       alert('Data saved successfully');
-      return response.json();
+      // return response.json();
     }
-    alert('Something went wrong...');
+    console.log('Something went wrong...');
   }).catch((error) => {
     console.log('error in insert-post fetch', error);
   });

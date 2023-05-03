@@ -6,6 +6,8 @@
     <script src="/javascripts/sighting-post-form.js"></script>
   </head>
   <body>
+  <a href="/">
+    <button>Home Page</button></a>
   <form action="/insert-post" method="post" onsubmit="return handleSubmit(event)">
     <label for="bird_image">Choose an Image</label>
     <input type="file" id="bird_image" data-base64="" name="bird_image" accept="image/*" onchange="imageUploaded(event)"/>
