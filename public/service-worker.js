@@ -2,6 +2,9 @@ const cacheName = 'bird-watching-app-cache';
 const assets = [
   '/sighting-post-form',
   '/javascripts/sighting-post-form.js',
+  '/javascripts/home-page.js',
+  '/stylesheets/home-page.css',
+  '/'
 ];
 
 // service worker "install" event listener
@@ -30,6 +33,63 @@ self.addEventListener('activate', (event) => {
         .map((key) => caches.delete(key)))),
   );
 });
+
+
+function getAllFromStore(store) {
+  return new Promise((resolve, reject) => {
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function handleGetPostsRequest(eventRequest) {
+  console.log('Inside handleGetPostsRequest');
+  const db = requestIDB.result;
+  const transaction = db.transaction(['postRequests', 'SavedPosts'], 'readwrite');
+  // const savedPostsStore = db.transaction('SavedPosts').objectStore('savedPosts');
+  const postRequestsStore = transaction.objectStore('postRequests');
+  const savedRequestsStore = transaction.objectStore('SavedPosts');
+  // const getAllPostsRequest = postRequestsStore.getAll();
+  // const postRequests = await postRequestsStore.getAll();
+
+  const [savedPosts, newOfflinePosts] = await Promise.all([
+    getAllFromStore(savedRequestsStore),
+    getAllFromStore(postRequestsStore),
+  ]);
+
+
+
+  // await new Promise ((resolve, reject) => {
+  //   getAllPostsRequest.onsuccess = (evt) => {
+  //     resolve(evt.target.result);
+  //   };
+  //   getAllPostsRequest.onerror = function (evt) {
+  //     reject(evt.target.error);
+  //   };
+  // });
+  // const sightings = getAllPostsRequest.result.map((post) => {
+
+  const sightings = [...savedPosts, ...newOfflinePosts].map((post) => {
+
+    return {
+      _id: post._id || "",
+      image: post.image
+    };
+  });
+
+  console.log(sightings);
+  // const response = {
+  //   sightings: sightings,
+  // };
+  console.log('working offline on get-posts END');
+
+  return new Response(JSON.stringify(sightings), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+
 
 async function saveRequestToIndexedDB(request) {
   console.log('Inside save ...function');
@@ -66,7 +126,46 @@ self.addEventListener('fetch', (event) => {
   const eventRequest = event.request.clone();
   console.log('Reaching to service worker');
   event.respondWith(
-    fetch(event.request).catch(async () => {
+    fetch(event.request)
+      .then(async (networkResponse) => {
+        if (eventRequest.url.indexOf('insert-post') > -1) {
+          return networkResponse;
+        } else if (eventRequest.url.indexOf('get-posts') > -1) {
+          // const response = handleGetPostsRequest(eventRequest);
+          // console.log('DOUBT DOUBT DOUBT Reached At End', response);
+          try{
+            const posts = await networkResponse.clone().json();
+            const simplifiedPosts = posts.slice(0, 5).map(({ _id, image }) => ({ _id, image }));
+
+            // save the new array of objects to indexedDB
+            const db = requestIDB.result;
+            const transaction = db.transaction(['SavedPosts'], 'readwrite');
+            const savedPostsStore = transaction.objectStore('SavedPosts');
+
+            const deleteAllRequest = savedPostsStore.clear();
+            await new Promise((resolve) => {
+              deleteAllRequest.onsuccess = resolve;
+              deleteAllRequest.onerror = resolve;
+            });
+
+            simplifiedPosts.forEach((post) => {
+              savedPostsStore.add(post);
+            });
+
+
+            console.log('Network response');
+            return networkResponse;
+          }catch(error){
+            console.log(error);
+          }
+          return networkResponse;
+        }
+        return caches.open(cacheName).then((cache) => {
+          cache.put(eventRequest, networkResponse.clone());
+          return networkResponse;
+        });
+      })
+      .catch(async () => {
       if (eventRequest.url.indexOf('insert-post') > -1) {
         const postIndexedDBID = await saveRequestToIndexedDB(eventRequest);
         // eslint-disable-next-line no-use-before-define
@@ -78,8 +177,14 @@ self.addEventListener('fetch', (event) => {
             console.log('sync event registration failed: ', error);
           });
 
-        return caches.open(cacheName)
-          .then((cache) => cache.match('/sighting-post-form'));
+        return new Response(JSON.stringify({ message: 'success' }), {
+          headers: { 'Content-Type': 'application/json' },
+          status: 200
+        });
+      }else if(eventRequest.url.indexOf('get-posts') > -1){
+        const response = await handleGetPostsRequest(eventRequest);
+        console.log('Reached At End', response);
+        return Promise.resolve(response);
       }
       return caches.open(cacheName)
         .then((cache) => cache.match(eventRequest))
@@ -120,8 +225,11 @@ function registerSyncEvent(tag) {
 // }
 
 const handleUpgrade = (event) => {
+  console.log('INDEXEDDB UPGRADEED');
   const db = event.target.result;
   db.createObjectStore('postRequests', { keyPath: 'id', autoIncrement: true });
+  db.createObjectStore('SavedPosts', { keyPath: 'id', autoIncrement: true });
+
 };
 
 // handle success event on indexedDB connection
@@ -136,7 +244,7 @@ const handleError = () => {
 // Open a connection to an IndexedDB database called "birdSightingAppDB" with version number 1
 const requestIDB = (() => {
   const birdSightingAppDB = indexedDB.open('bird-sighting-app-DB', 1);
-
+  console.log('indexedDB launched');
   // eslint-disable-next-line max-len
   // Attach event listeners to the IndexedDB open request to handle the upgrade, success, and error events
   birdSightingAppDB.addEventListener('upgradeneeded', handleUpgrade);

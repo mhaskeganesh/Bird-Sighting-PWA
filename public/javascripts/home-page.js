@@ -1,8 +1,17 @@
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
+
 const imagesContainer = document.querySelector('#images-container');
 
 fetch('/get-posts')
-  .then((response) => response.json())
+  .then((response) => {
+    console.log('HELLO',response);
+    return response.json();
+
+  })
   .then((posts) => {
+    console.log('.then posts CHECK',posts);
     posts.forEach((post) => {
       const img = document.createElement('img');
       img.src = post.image;
@@ -14,8 +23,9 @@ fetch('/get-posts')
   .catch((error) => console.log(error));
 
 // add event listener to each image element
-// imagesContainer.addEventListener('click', (event) => {
-//   const clickedImageId = event.target.getAttribute('data-id');
-//   console.log('Clicked image ID: ', clickedImageId);
-//   // send the clickedImageId to the server
-// });
+imagesContainer.addEventListener('click', (event) => {
+  const clickedImageId = event.target.getAttribute('data-id');
+  console.log('Clicked image ID: ', clickedImageId);
+  // send the clickedImageId to the server
+
+});
