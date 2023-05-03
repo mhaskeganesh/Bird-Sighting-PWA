@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="manifest" href="/manifest.json">
+    <script src="/javascripts/sighting-post-form.js"></script>
+  </head>
+  <body>
+  <form action="/insert-post" method="post" onsubmit="return handleSubmit(event)">
+    <label for="bird_image">Choose an Image</label>
+    <input type="file" id="bird_image" data-base64="" name="bird_image" accept="image/*" onchange="imageUploaded(event)"/>
+    <br>
+    <label for="date">Select Date</label>
+    <input type="date" id="date" name="date"/>
+    <br>
+    <label for="description">Description:</label>
+    <textarea id="description" name="description" rows="4" cols="40"></textarea>
+    <br>
+    <label for="nickname">Enter your nickname</label>
+    <input type="text" id="user_nickname" name="user_nickname" required/>
+    <br>
+    <label for="identification">Enter suggestion keyword for identification</label>
+    <input type="text" id="identification" name="identification" required/>
+    <br>
+    <input type="submit" value="Save">
+  </form>
+  </body>
+
+</html>
