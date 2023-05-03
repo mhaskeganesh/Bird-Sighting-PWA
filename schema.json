@@ -1,0 +1,33 @@
+// Sighting schema
+[
+    {
+        "id": "objectid",
+        "image": "string",
+        "timestamp": "timestamp",
+        "location": "geolocation (Lat and Lang)",
+        "description": "string",
+        "user_nickname": "string",
+        "identification": "<identification>"
+    }
+]
+
+
+// Chat schema
+[
+    {
+        "id": "objectid",
+        "comment": "string",
+        "identification": "<identification>",
+        "sighting_id": "<sighting_objectid>"
+    }
+]
+
+// identification schema
+[
+    {
+        "id": "objectid",
+        "name": "string",
+        "scientific_name": "string",
+        "description": "string",
+    }
+]
