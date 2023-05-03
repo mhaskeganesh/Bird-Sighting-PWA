@@ -1,8 +1,13 @@
 const imagesContainer = document.querySelector('#images-container');
 
 fetch('/get-posts')
-  .then((response) => response.json())
+  .then((response) => {
+    console.log('HELLO',response);
+    return response.json();
+
+  })
   .then((posts) => {
+    console.log('.then posts CHECK',posts);
     posts.forEach((post) => {
       const img = document.createElement('img');
       img.src = post.image;
