@@ -14,8 +14,9 @@ fetch('/get-posts')
   .catch((error) => console.log(error));
 
 // add event listener to each image element
-// imagesContainer.addEventListener('click', (event) => {
-//   const clickedImageId = event.target.getAttribute('data-id');
-//   console.log('Clicked image ID: ', clickedImageId);
-//   // send the clickedImageId to the server
-// });
+imagesContainer.addEventListener('click', (event) => {
+  const clickedImageId = event.target.getAttribute('data-id');
+  console.log('Clicked image ID: ', clickedImageId);
+  // send the clickedImageId to the server
+
+});
