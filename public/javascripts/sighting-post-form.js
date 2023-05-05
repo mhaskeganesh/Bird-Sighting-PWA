@@ -33,7 +33,6 @@ function handleSubmit(event) {
       alert('Data saved successfully');
       // return response.json();
     }
-    console.log('Something went wrong...');
   }).catch((error) => {
     console.log('error in insert-post fetch', error);
   });

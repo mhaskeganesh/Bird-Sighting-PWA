@@ -167,32 +167,32 @@ self.addEventListener('fetch', (event) => {
         }
         if (eventRequest.url.indexOf('get-posts') > -1) {
           // const response = handleGetPostsRequest(eventRequest);
-          try {
-            console.log('GET POST SERVICE WORKER 1');
-            const posts = await networkResponse.clone().json();
-            const simplifiedPosts = posts.slice(0, 5).map(({ _id, image }) => ({ _id, image }));
-
-            // save the new array of objects to indexedDB
-            // eslint-disable-next-line no-use-before-define
-            const db = requestIDB.result;
-            const transaction = db.transaction(['SavedPosts'], 'readwrite');
-            const savedPostsStore = transaction.objectStore('SavedPosts');
-
-            const deleteAllRequest = savedPostsStore.clear();
-            await new Promise((resolve) => {
-              deleteAllRequest.onsuccess = resolve;
-              deleteAllRequest.onerror = resolve;
-            });
-            console.log('GET POST SERVICE WORKER 2');
-            simplifiedPosts.forEach((post) => {
-              savedPostsStore.add(post);
-            });
-
-            console.log('Network response');
-            return networkResponse;
-          } catch (error) {
-            console.log(error);
-          }
+          // try {
+          //   console.log('GET POST SERVICE WORKER 1');
+          //   const posts = await networkResponse.clone().json();
+          //   const simplifiedPosts = posts.slice(0, 5).map(({ _id, image }) => ({ _id, image }));
+          //
+          //   // save the new array of objects to indexedDB
+          //   // eslint-disable-next-line no-use-before-define
+          //   const db = requestIDB.result;
+          //   const transaction = db.transaction(['SavedPosts'], 'readwrite');
+          //   const savedPostsStore = transaction.objectStore('SavedPosts');
+          //
+          //   const deleteAllRequest = savedPostsStore.clear();
+          //   await new Promise((resolve) => {
+          //     deleteAllRequest.onsuccess = resolve;
+          //     deleteAllRequest.onerror = resolve;
+          //   });
+          //   console.log('GET POST SERVICE WORKER 2');
+          //   simplifiedPosts.forEach((post) => {
+          //     savedPostsStore.add(post);
+          //   });
+          //
+          //   console.log('Network response');
+          //   return networkResponse;
+          // } catch (error) {
+          //   console.log(error);
+          // }
           return networkResponse;
         } if (eventRequest.url.indexOf('sighting-detail') > -1) {
           console.log('DEBUG...', networkResponse.clone().json().then((res) => {
@@ -283,11 +283,12 @@ function registerSyncEvent(tag) {
 // }
 
 const handleUpgrade = (event) => {
-  console.log('INDEXEDDB UPGRADEED');
-  const db = event.target.result;
-  db.createObjectStore('postRequests', { keyPath: 'id', autoIncrement: true });
-  const savedPostObjectStore = db.createObjectStore('SavedPosts', { keyPath: 'id', autoIncrement: true });
-  savedPostObjectStore.createIndex('_id', '_id');
+  // console.log('INDEXEDDB UPGRADED');
+  // const db = event.target.result;
+  // db.createObjectStore('postRequests', { keyPath: 'id', autoIncrement: true });
+  // // eslint-disable-next-line max-len
+  // // const savedPostObjectStore = db.createObjectStore('SavedPosts', { keyPath: 'id', autoIncrement: true });
+  // // savedPostObjectStore.createIndex('_id', '_id');
 };
 
 // handle success event on indexedDB connection
@@ -341,6 +342,7 @@ self.addEventListener('sync', (event) => {
       };
       const headers = new Headers();
       headers.append('Content-Type', 'application/json');
+      console.log('SYNC TRIGGERED TRYING TO EXECUTE');
 
       fetch('/insert-post', {
         method: 'POST',
@@ -356,6 +358,8 @@ self.addEventListener('sync', (event) => {
           postRequestsStore2.delete(post.id);
           return response.json();
         }
+        debugger;
+        console.log('response', response);
       }).catch((error) => {
         console.log('Error occurred while saving offline posts', error);
       });
