@@ -2,8 +2,10 @@ const cacheName = 'bird-watching-app-cache';
 const assets = [
   '/sighting-post-form',
   '/javascripts/sighting-post-form.js',
+  '/javascripts/sighting-page.js',
   '/javascripts/home-page.js',
   '/stylesheets/home-page.css',
+  '/sighting/',
   '/',
 ];
 
@@ -45,7 +47,7 @@ function getFromStore(store, method, id, index) {
         console.log('Inside index');
         // eslint-disable-next-line no-underscore-dangle
         const _idIndex = store.index(index);
-        request = _idIndex.getAll(id);
+        request = _idIndex.get(id);
       } else {
         request = store.get(id);
       }
@@ -166,6 +168,7 @@ self.addEventListener('fetch', (event) => {
         if (eventRequest.url.indexOf('get-posts') > -1) {
           // const response = handleGetPostsRequest(eventRequest);
           try {
+            console.log('GET POST SERVICE WORKER 1');
             const posts = await networkResponse.clone().json();
             const simplifiedPosts = posts.slice(0, 5).map(({ _id, image }) => ({ _id, image }));
 
@@ -180,7 +183,7 @@ self.addEventListener('fetch', (event) => {
               deleteAllRequest.onsuccess = resolve;
               deleteAllRequest.onerror = resolve;
             });
-
+            console.log('GET POST SERVICE WORKER 2');
             simplifiedPosts.forEach((post) => {
               savedPostsStore.add(post);
             });
@@ -284,7 +287,7 @@ const handleUpgrade = (event) => {
   const db = event.target.result;
   db.createObjectStore('postRequests', { keyPath: 'id', autoIncrement: true });
   const savedPostObjectStore = db.createObjectStore('SavedPosts', { keyPath: 'id', autoIncrement: true });
-  // savedPostObjectStore.createIndex('_id', '_id');
+  savedPostObjectStore.createIndex('_id', '_id');
 };
 
 // handle success event on indexedDB connection

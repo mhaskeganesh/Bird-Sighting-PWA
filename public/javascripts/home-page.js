@@ -4,6 +4,31 @@ if ('serviceWorker' in navigator) {
 
 const imagesContainer = document.querySelector('#images-container');
 
+const handleUpgrade = (event) => {
+  console.log(indexDB upgraded: Home Page);
+}
+
+const handleSuccess = (event) => {
+  console.log('indexedDB connection successful: Home Page');
+}
+
+const handleError = (error) => {
+  console.log('indexedDB connection failed: Home Page');
+}
+
+const requestDB = (() => {
+  const rdb = indexedDB.open('SavedPosts', 1);
+  rdb.addEventListener('upgradeneeded', handleUpgrade);
+  rdb.addEventListener('success', handleSuccess);
+  rdb.addEventListener('error', handleError);
+
+  return rdb;
+}
+)();
+function savePostsToIndexedDB(posts) {
+  console.log(posts);
+}
+
 fetch('/get-posts')
   .then((response) => {
     console.log('HELLO', response);
@@ -11,6 +36,7 @@ fetch('/get-posts')
   })
   .then((posts) => {
     console.log('.then posts CHECK', posts);
+    savePostsToIndexedDB(posts);
     posts.forEach((post) => {
       const img = document.createElement('img');
       img.src = post.image;
