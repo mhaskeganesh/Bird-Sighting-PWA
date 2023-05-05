@@ -9,7 +9,9 @@ const sightingPostFormRouter = require('./routes/sighting-post-form');
 const insertrouter = require('./routes/api/insert');
 const homePageRouter = require('./routes/homePageRouter');
 const fetchPostsWithImageIdRouter = require('./routes/api/posts-with-images-ids');
+const serveSightingPage = require('./routes/sighting-page-router');
 const connectToDatabase = require('./config/dbConnect');
+const sightDetailRouter = require('./routes/api/sight-details');
 
 const app = express();
 
@@ -23,6 +25,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/sighting', serveSightingPage);
+app.use('/sighting-detail', sightDetailRouter);
 app.use('/get-posts', fetchPostsWithImageIdRouter);
 app.use('/insert-post', insertrouter);
 app.use('/sighting-post-form', sightingPostFormRouter);
