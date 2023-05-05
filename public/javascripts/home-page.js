@@ -5,18 +5,16 @@ if ('serviceWorker' in navigator) {
 const getFormattedDate = (date) => {
   const formattedDate = new Date(date);
   return `${formattedDate.getDate()} ${formattedDate.toLocaleString('default', { month: 'long' })}  ${formattedDate.getFullYear()}`;
-}
-
+};
 
 fetch('/get-posts')
-  .then((response) => {
-    console.log('HELLO',response);
-    return response.json();
-
-  })
+  .then((response) => response.json())
   .then((posts) => {
-    console.log('.then posts CHECK',posts);
+    console.log('All posts', posts);
+
+    // Get card wrapper
     const listingCardWrapper = document.getElementById('listing-card-wrapper');
+
     posts.forEach((post) => {
       // Get the card template
       const cardTemplateWrapper = document.getElementById('listing-card-template').cloneNode(true);
@@ -31,7 +29,7 @@ fetch('/get-posts')
 
       // Set Event listener
       cardTemplate.addEventListener('click', (event) => {
-        console.log( 'data-id', event.currentTarget.getAttribute('data-id'));
+        console.log('data-id', event.currentTarget.getAttribute('data-id'));
       });
 
       // Fill the details
@@ -42,26 +40,6 @@ fetch('/get-posts')
 
       // append to wrapper
       listingCardWrapper.appendChild(cardTemplateWrapper);
-      // const img = document.createElement('img');
-      // img.src = post.image;
-      // // eslint-disable-next-line no-underscore-dangle
-      // img.setAttribute('data-id', post._id);
-      // cardTemplate.appendChild(img);
-
-      // imagesContainer.appendChild(img);
     });
   })
   .catch((error) => console.log(error));
-
-
-// add event listener to each image element
-// imagesContainer.forEach((image) => {
-//   console.log(image)
-//   image.addEventListener('click', (event) => {
-//     console.log("Hii")
-//     const clickedImageId = event.target.getAttribute('data-id');
-//     console.log('Clicked image ID: ', clickedImageId);
-//     // send the clickedImageId to the server
-//   });
-// });
-//
