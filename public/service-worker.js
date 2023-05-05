@@ -9,7 +9,14 @@ const assets = [
   '/',
 ];
 
-// service worker "install" event listener
+/**
+ * This code registers a service worker and caches the assets defined in the assets array using the cacheName.
+ * The waitUntil method ensures that the installation process does not finish until the caching is complete.
+ * The caches.open() method returns a promise that resolves to a cache object.
+ * Then the cache.addAll() method is called to add all the assets to the cache.
+ * If there is an error in the caching process, it is caught and logged to the console.
+ * Once the assets are cached successfully, a success message is logged to the console.
+ */
 // eslint-disable-next-line no-restricted-globals
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -25,6 +32,11 @@ self.addEventListener('install', (event) => {
   );
 });
 
+/**
+* This code registers an event listener for 'activate' events on the Service Worker.
+* It removes all caches that are not the current cacheName by iterating through all the caches keys,
+* and deleting the ones that do not match the current cacheName.
+* */
 // service worker "activate" event listener
 // eslint-disable-next-line no-restricted-globals
 self.addEventListener('activate', (event) => {
@@ -36,15 +48,22 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+/**
+ * A function that retrieves data from an object store in indexedDB using either the getAll or get method,
+ * depending on the parameters passed to it.
+ * @param {IDBObjectStore} store - The object store from which to retrieve data.
+ * @param {string} method - The method to use for retrieving data, either 'getAll' or 'get'.
+ * @param {number|string} id - The ID of the data to retrieve. Required if method is 'get'.
+ * @param {string} index - The index to use for retrieving data. Required if method is 'get' and the data is indexed.
+ * @returns {Promise} - A promise that resolves with the retrieved data or rejects with an error.
+ * */
 function getFromStore(store, method, id, index) {
   return new Promise((resolve, reject) => {
-    console.log('Inside getFromStore', index);
     let request;
     if (method === 'getAll') {
       request = store.getAll();
     } else if (method === 'get') {
       if (index) {
-        console.log('Inside index');
         // eslint-disable-next-line no-underscore-dangle
         const _idIndex = store.index(index);
         request = _idIndex.get(id);
@@ -57,6 +76,14 @@ function getFromStore(store, method, id, index) {
     request.onerror = () => reject(request.error);
   });
 }
+
+/**
+ * This function handles the GET request for the sighting detail and returns the data associated with the post ID.
+ * It first gets the ID from the URL, and then retrieves the post detail from the appropriate object store in IndexedDB,
+ * depending on whether the post is saved or it was newly created while offline.
+ * @param {Request} eventRequest - The Request object representing the incoming request.
+ * @returns {Response} - The Response object containing the post detail data as JSON.
+ * */
 async function handleGetSightingDetailRequest(eventRequest) {
   const db = requestIDB.result;
   const transaction = db.transaction(['postRequests', 'SavedPosts'], 'readwrite');
@@ -69,77 +96,63 @@ async function handleGetSightingDetailRequest(eventRequest) {
   let postDetail = null;
   if (id.includes('offid:')) {
     let postId = id.replace(/^offid:/, '');
-    // eslint-disable-next-line radix
     postId = parseInt(postId);
-
     postDetail = await getFromStore(postRequestsStore, 'get', postId);
   } else {
     postDetail = await getFromStore(savedRequestsStore, 'get', id, '_id');
   }
-  // eslint-disable-next-line no-debugger
   return new Response(JSON.stringify(postDetail), {
     headers: { 'Content-Type': 'application/json' },
   });
 }
 
+/**
+ * This function is responsible for handling the request to retrieve all the posts.
+ * It first opens the indexedDB database and creates a transaction to access the 'postRequests'
+ * and 'SavedPosts' object stores.
+ * Then, it retrieves all the saved posts and new offline posts from these object stores.
+ * It concatenates these posts and maps them to a new array with each post containing an '_id' and 'image' property.
+ * Finally, it returns a Response object with the array of posts as a JSON string and a 'Content-Type' header of 'application/json'.
+ * */
 async function handleGetPostsRequest(eventRequest) {
-  console.log('Inside handleGetPostsRequest');
   // eslint-disable-next-line no-use-before-define
   const db = requestIDB.result;
   const transaction = db.transaction(['postRequests', 'SavedPosts'], 'readwrite');
-  // const savedPostsStore = db.transaction('SavedPosts').objectStore('savedPosts');
   const postRequestsStore = transaction.objectStore('postRequests');
   const savedRequestsStore = transaction.objectStore('SavedPosts');
-  // const getAllPostsRequest = postRequestsStore.getAll();
-  // const postRequests = await postRequestsStore.getAll();
 
   const [savedPosts, newOfflinePosts] = await Promise.all([
     getFromStore(savedRequestsStore, 'getAll'),
     getFromStore(postRequestsStore, 'getAll'),
   ]);
 
-  // await new Promise ((resolve, reject) => {
-  //   getAllPostsRequest.onsuccess = (evt) => {
-  //     resolve(evt.target.result);
-  //   };
-  //   getAllPostsRequest.onerror = function (evt) {
-  //     reject(evt.target.error);
-  //   };
-  // });
-  // const sightings = getAllPostsRequest.result.map((post) => {
-
   const sightings = [...savedPosts, ...newOfflinePosts].map((post) => ({
-    // eslint-disable-next-line no-underscore-dangle
     _id: post._id || `offid:${post.id}`,
     image: post.image,
   }));
-
-  console.log(sightings);
-  // const response = {
-  //   sightings: sightings,
-  // };
-  console.log('working offline on get-posts END');
 
   return new Response(JSON.stringify(sightings), {
     headers: { 'Content-Type': 'application/json' },
   });
 }
 
+/**
+ * This function saves a new post request into IndexedDB.
+ * It first gets the request body from the passed request object,
+ * opens a transaction on the "postRequests" object store of IndexedDB,
+ * and then adds the request body to the object store using the add() method.
+ * It returns a promise that resolves with the result of the add() method.
+ * */
 async function saveRequestToIndexedDB(request) {
-  console.log('Inside save ...function');
   const requestBody = await request.json();
-
   // eslint-disable-next-line no-use-before-define
   const postInsertRequestDB = requestIDB.result;
   const transaction = postInsertRequestDB.transaction(['postRequests'], 'readwrite');
   const postRequestsStore = transaction.objectStore('postRequests');
-  console.log('Saving post in indexedDB  start...');
-  // const requestClone = request.clone();
   const addRequest = postRequestsStore.add(requestBody);
 
   await new Promise((resolve, reject) => {
     addRequest.onsuccess = function (event) {
-      console.log('Post saved in indexedDB successfully.');
       resolve(event.target.result);
     };
 
@@ -152,13 +165,23 @@ async function saveRequestToIndexedDB(request) {
   return addRequest.result;
 }
 
+/**
+ * This code implements a network first cache fallback approach for handling requests.
+ * It listens to fetch events and attempts to fetch the resource from the network.
+ * If the network fetch is successful, it is returned, otherwise it is fetched from the cache.
+ * If the requested URL matches certain conditions, such as containing "insert-post", "get-posts", or "sighting-detail", different handling methods are employed.
+ * The .then block is used for the network-first approach, while the .catch block is used for the cache fallback.
+ * If the request fails to fetch from the network, it is handled by the .catch block.
+ * In this block, if the URL contains "insert-post", the request is saved to IndexedDB and a sync event is registered.
+ * If the URL contains "get-posts" or "sighting-detail", the request is handled by the respective functions.
+ * If the request is not for "insert-post", "get-posts", or "sighting-detail", the response is fetched from the cache.
+ * */
 // fetch event with traditional .then() chain implementation
 // eslint-disable-next-line no-restricted-globals
 // fetch event listener
 // eslint-disable-next-line no-restricted-globals
 self.addEventListener('fetch', (event) => {
   const eventRequest = event.request.clone();
-  console.log('Reaching to service worker');
   event.respondWith(
     fetch(event.request)
       .then(async (networkResponse) => {
@@ -166,33 +189,6 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         }
         if (eventRequest.url.indexOf('get-posts') > -1) {
-          // const response = handleGetPostsRequest(eventRequest);
-          // try {
-          //   console.log('GET POST SERVICE WORKER 1');
-          //   const posts = await networkResponse.clone().json();
-          //   const simplifiedPosts = posts.slice(0, 5).map(({ _id, image }) => ({ _id, image }));
-          //
-          //   // save the new array of objects to indexedDB
-          //   // eslint-disable-next-line no-use-before-define
-          //   const db = requestIDB.result;
-          //   const transaction = db.transaction(['SavedPosts'], 'readwrite');
-          //   const savedPostsStore = transaction.objectStore('SavedPosts');
-          //
-          //   const deleteAllRequest = savedPostsStore.clear();
-          //   await new Promise((resolve) => {
-          //     deleteAllRequest.onsuccess = resolve;
-          //     deleteAllRequest.onerror = resolve;
-          //   });
-          //   console.log('GET POST SERVICE WORKER 2');
-          //   simplifiedPosts.forEach((post) => {
-          //     savedPostsStore.add(post);
-          //   });
-          //
-          //   console.log('Network response');
-          //   return networkResponse;
-          // } catch (error) {
-          //   console.log(error);
-          // }
           return networkResponse;
         } if (eventRequest.url.indexOf('sighting-detail') > -1) {
           console.log('DEBUG...', networkResponse.clone().json().then((res) => {
@@ -202,12 +198,7 @@ self.addEventListener('fetch', (event) => {
         }
         return caches.open(cacheName).then((cache) => {
           if (eventRequest.url.includes('/sighting/')) {
-            console.log('Sighting request detected');
-            // const cacheKeys = cache.keys();
-            // const sightingCacheKey = cacheKeys.find((key) => key.url.includes('/sighting/'));
-            // if (!sightingCacheKey) {
             cache.put('/sighting/', networkResponse.clone());
-            // }
             return networkResponse;
           }
           cache.put(eventRequest, networkResponse.clone());
@@ -232,13 +223,9 @@ self.addEventListener('fetch', (event) => {
           });
         } if (eventRequest.url.indexOf('get-posts') > -1) {
           const response = await handleGetPostsRequest(eventRequest);
-          console.log('Reached At End', response);
           return Promise.resolve(response);
         } if (eventRequest.url.indexOf('sighting-detail') > -1) {
           const response = await handleGetSightingDetailRequest(eventRequest);
-          // response.clone().json().then((res2) => {
-          //   console.log('CHECK', res2);
-          // });
           return Promise.resolve(response);
         }
         return caches.open(cacheName)
@@ -258,37 +245,20 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Function to save the request body into IndexedDB
-
-// Function to register a sync event
+/**
+ * Registers a synchronization event with the given tag.
+ * If the browser supports the SyncManager, it will return a promise that resolves when the synchronization event is registered.
+ * Otherwise, it will return a rejected promise with an error message indicating that sync events are not supported.
+ * */
 function registerSyncEvent(tag) {
-  // Check if the browser supports sync events
-  // eslint-disable-next-line no-restricted-globals
   if ('SyncManager' in self) {
-    // Register a sync event with the given tag
-    // eslint-disable-next-line no-restricted-globals
     return self.registration.sync.register(tag);
   }
-  // Sync events are not supported, so return a rejected Promise
   return Promise.reject(new Error('Sync events are not supported'));
 }
 
-// Function to serialize headers into a plain object
-// function serializeHeaders(headers) {
-//   const serialized = {};
-//   headers.forEach((value, key) => {
-//     serialized[key] = value;
-//   });
-//   return serialized;
-// }
-
 const handleUpgrade = (event) => {
-  // console.log('INDEXEDDB UPGRADED');
-  // const db = event.target.result;
-  // db.createObjectStore('postRequests', { keyPath: 'id', autoIncrement: true });
-  // // eslint-disable-next-line max-len
-  // // const savedPostObjectStore = db.createObjectStore('SavedPosts', { keyPath: 'id', autoIncrement: true });
-  // // savedPostObjectStore.createIndex('_id', '_id');
+  console.log('indexedDB upgraded');
 };
 
 // handle success event on indexedDB connection
@@ -314,17 +284,26 @@ const requestIDB = (() => {
   return birdSightingAppDB;
 })();
 
+/**
+ * This function deletes a record from an indexedDB object store given the key.
+ * It first obtains a reference to the object store, then calls the delete() method with the key to remove the record from the store.
+ * */
 function deleteRecordFromIndexDB(objectStore, key) {
   const postInsertRequestDB = requestIDB.result;
   const transaction = postInsertRequestDB.transaction([objectStore, 'readwrite']);
   const postRequestsStore = transaction.objectStore(objectStore);
   postRequestsStore.delete(key);
 }
+
+/**
+ * This code handles the 'sync' event which is triggered when the user regains internet connectivity after going offline.
+ * If the event tag includes 'insert-post-sync', it retrieves the post from IndexedDB and sends a POST request to the server to insert the post data.
+ * If the server response has a status of 200, the post is deleted from IndexedDB.
+ * */
 // eslint-disable-next-line no-restricted-globals
 self.addEventListener('sync', (event) => {
   if (event.tag.indexOf('insert-post-sync') > -1) {
     // eslint-disable-next-line no-debugger
-    console.log('sync triggered');
     const postInsertRequestDB = requestIDB.result;
     const transaction = postInsertRequestDB.transaction(['postRequests'], 'readwrite');
     const postRequestsStore = transaction.objectStore('postRequests');
@@ -342,7 +321,6 @@ self.addEventListener('sync', (event) => {
       };
       const headers = new Headers();
       headers.append('Content-Type', 'application/json');
-      console.log('SYNC TRIGGERED TRYING TO EXECUTE');
 
       fetch('/insert-post', {
         method: 'POST',
@@ -351,15 +329,11 @@ self.addEventListener('sync', (event) => {
         // eslint-disable-next-line consistent-return
       }).then((response) => {
         if (response.status === 200) {
-          console.log('Offline Posts Saved Successfully');
-          // deleteRecordFromIndexDB('postRequests', post.id);
           const transaction2 = postInsertRequestDB.transaction(['postRequests'], 'readwrite');
           const postRequestsStore2 = transaction2.objectStore('postRequests');
           postRequestsStore2.delete(post.id);
           return response.json();
         }
-        debugger;
-        console.log('response', response);
       }).catch((error) => {
         console.log('Error occurred while saving offline posts', error);
       });

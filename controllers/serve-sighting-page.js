@@ -1,11 +1,8 @@
+/**
+ *  Export an object that contains a single function called serveSightingPage.
+ *  This function renders a view called 'sighting-page' and sends the rendered content as a response to the client.
+ * */
 const serveSightingPage = (req, res) => {
-  // const { id } = req.query;
-  // if (!id) {
-  //   res.send('Invalid Entry');
-  //   return;
-  // }
-  // console.log('id', id);
-  // res.render('sighting-page', { postId: id });
   res.render('sighting-page');
 };
 

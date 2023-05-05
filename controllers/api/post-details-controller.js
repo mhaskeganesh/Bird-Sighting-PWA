@@ -1,3 +1,6 @@
+/**
+ * Retrieves the details of a post specified by the postId and sends it as a response in JSON format.
+ * */
 const SightingPost = require('../../models/sighting_post');
 
 const getPostDetails = async (req, res) => {

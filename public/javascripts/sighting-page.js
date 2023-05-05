@@ -1,16 +1,22 @@
+/**
+ * This code registers the service worker file "service-worker.js" if the browser supports service workers.
+ * */
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js');
 }
 
-// const postIdInput = document.getElementById('post_id');
-// const postId = postIdInput.value;
-
+// Get the id parameter from URL
 const urlParams = new URLSearchParams(window.location.search);
 const postId = urlParams.get('id');
-console.log(`postId: ${postId}`);
-console.log(postId);
+// This variable will be used to store the post details.
 let post = null;
-const dataUnavailableMessage = 'Data isnt avaiable / offline'
+// Offline message string
+const dataUnavailableMessage = 'Data isnt avaiable / offline';
+
+/**
+ * * This function sends a POST request to the server with the postId to fetch the details of the selected sighting
+ * It updates the post details on the DOM once the response is received
+*/
 fetch('/sighting-detail', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },

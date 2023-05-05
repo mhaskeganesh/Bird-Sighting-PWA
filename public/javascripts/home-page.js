@@ -8,15 +8,15 @@ if ('serviceWorker' in navigator) {
 
 const imagesContainer = document.querySelector('#images-container');
 
+/*
+* Handle the upgrade event for the indexedDB database.
+* Creates object stores for the postRequests and SavedPosts,
+* with keyPath 'id' and autoIncrement set to true.
+* Also creates an index for the SavedPosts object store on the '_id' property.
+* This index will help in getting filtered data based on _id as key
+* @param {Event} event - The upgrade event object.
+* */
 
-/**
-
- Handle the upgrade event for the indexedDB database.
- Creates object stores for the postRequests and SavedPosts,
- with keyPath 'id' and autoIncrement set to true.
- Also creates an index for the SavedPosts object store on the '_id' property.
- @param {Event} event - The upgrade event object.
- */
 const handleUpgrade = (event) => {
   const db = event.target.result;
   db.createObjectStore('postRequests', { keyPath: 'id', autoIncrement: true });
@@ -24,14 +24,27 @@ const handleUpgrade = (event) => {
   savedPostObjectStore.createIndex('_id', '_id');
 };
 
+/**
+ Handles the success event of the indexedDB connection.
+ */
 const handleSuccess = (event) => {
   console.log('indexedDB connection successful: Home Page');
 };
 
+/**
+ * Handles errors that occur when attempting to connect to IndexedDB in the context of the Home Page.
+ */
 const handleError = (error) => {
   console.log('indexedDB connection failed: Home Page');
 };
 
+/**
+ * Initializes the IndexedDB database for the bird sighting app.
+ * This function is invoked on page load to open the IndexedDB database and attach the necessary event listeners for
+ * creating and upgrading object stores.
+ * The IDBOpenDBRequest type object is returned and stored into requestIDB.
+ * And this requestIDB object is available globally to access the indexedDB
+ */
 const requestIDB = (() => {
   const rdb = indexedDB.open('bird-sighting-app-DB', 1);
   rdb.addEventListener('upgradeneeded', handleUpgrade);
@@ -41,8 +54,13 @@ const requestIDB = (() => {
   return rdb;
 }
 )();
+
+/**
+ * Saves up to 5 posts into the SavedPosts object store in indexedDB.
+ * Also, previously saved posts are cleared.
+ * @param {Array} posts - The array of posts to be saved.
+ */
 async function savePostsToIndexedDB(posts) {
-  console.log('Home Page: ', posts);
   try {
     const simplifiedPosts = posts.slice(0, 5).map(({ _id, image }) => ({ _id, image }));
 
@@ -65,6 +83,12 @@ async function savePostsToIndexedDB(posts) {
   }
 }
 
+/**
+ * This code block fetches all the posts from the server or cache on page load
+ * saves them into IndexedDB for offline use, and creates an HTML image element
+ * for each post to display it on the page.
+ * @param {string} '/get-posts' - The server endpoint to fetch the posts from
+ */
 fetch('/get-posts')
   .then((response) => {
     console.log('HELLO', response);
@@ -76,20 +100,19 @@ fetch('/get-posts')
     posts.forEach((post) => {
       const img = document.createElement('img');
       img.src = post.image;
-      // eslint-disable-next-line no-underscore-dangle
-      // const id = post._id || post.id;
-      // img.setAttribute('data-id', id);
       img.setAttribute('data-id', post._id);
       imagesContainer.appendChild(img);
     });
   })
   .catch((error) => console.log(error));
 
-// add event listener to each image element
+/*
+* click event listener for images.
+* data-id is fetched from the event and pass it to Sighting post detail page
+* */
 imagesContainer.addEventListener('click', (event) => {
   const clickedImageId = event.target.getAttribute('data-id');
   console.log('Clicked image ID: ', clickedImageId);
-  // send the clickedImageId to the server
   if (clickedImageId !== null) {
     window.location.href = `/sighting/?id=${clickedImageId}`;
   }
