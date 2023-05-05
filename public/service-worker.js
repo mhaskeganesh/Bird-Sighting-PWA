@@ -4,7 +4,7 @@ const assets = [
   '/javascripts/sighting-post-form.js',
   '/javascripts/home-page.js',
   '/stylesheets/home-page.css',
-  '/'
+  '/',
 ];
 
 // service worker "install" event listener
@@ -34,17 +34,55 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-
-function getAllFromStore(store) {
+function getFromStore(store, method, id, index) {
   return new Promise((resolve, reject) => {
-    const request = store.getAll();
+    console.log('Inside getFromStore', index);
+    let request;
+    if (method === 'getAll') {
+      request = store.getAll();
+    } else if (method === 'get') {
+      if (index) {
+        console.log('Inside index');
+        // eslint-disable-next-line no-underscore-dangle
+        const _idIndex = store.index(index);
+        request = _idIndex.getAll(id);
+      } else {
+        request = store.get(id);
+      }
+    }
+
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
+  });
+}
+async function handleGetSightingDetailRequest(eventRequest) {
+  const db = requestIDB.result;
+  const transaction = db.transaction(['postRequests', 'SavedPosts'], 'readwrite');
+  const postRequestsStore = transaction.objectStore('postRequests');
+  const savedRequestsStore = transaction.objectStore('SavedPosts');
+
+  const url = eventRequest.referrer;
+  const id = url.substring(url.indexOf('=') + 1);
+
+  let postDetail = null;
+  if (id.includes('offid:')) {
+    let postId = id.replace(/^offid:/, '');
+    // eslint-disable-next-line radix
+    postId = parseInt(postId);
+
+    postDetail = await getFromStore(postRequestsStore, 'get', postId);
+  } else {
+    postDetail = await getFromStore(savedRequestsStore, 'get', id, '_id');
+  }
+  // eslint-disable-next-line no-debugger
+  return new Response(JSON.stringify(postDetail), {
+    headers: { 'Content-Type': 'application/json' },
   });
 }
 
 async function handleGetPostsRequest(eventRequest) {
   console.log('Inside handleGetPostsRequest');
+  // eslint-disable-next-line no-use-before-define
   const db = requestIDB.result;
   const transaction = db.transaction(['postRequests', 'SavedPosts'], 'readwrite');
   // const savedPostsStore = db.transaction('SavedPosts').objectStore('savedPosts');
@@ -54,11 +92,9 @@ async function handleGetPostsRequest(eventRequest) {
   // const postRequests = await postRequestsStore.getAll();
 
   const [savedPosts, newOfflinePosts] = await Promise.all([
-    getAllFromStore(savedRequestsStore),
-    getAllFromStore(postRequestsStore),
+    getFromStore(savedRequestsStore, 'getAll'),
+    getFromStore(postRequestsStore, 'getAll'),
   ]);
-
-
 
   // await new Promise ((resolve, reject) => {
   //   getAllPostsRequest.onsuccess = (evt) => {
@@ -70,13 +106,11 @@ async function handleGetPostsRequest(eventRequest) {
   // });
   // const sightings = getAllPostsRequest.result.map((post) => {
 
-  const sightings = [...savedPosts, ...newOfflinePosts].map((post) => {
-
-    return {
-      _id: post._id || "",
-      image: post.image
-    };
-  });
+  const sightings = [...savedPosts, ...newOfflinePosts].map((post) => ({
+    // eslint-disable-next-line no-underscore-dangle
+    _id: post._id || `offid:${post.id}`,
+    image: post.image,
+  }));
 
   console.log(sightings);
   // const response = {
@@ -88,8 +122,6 @@ async function handleGetPostsRequest(eventRequest) {
     headers: { 'Content-Type': 'application/json' },
   });
 }
-
-
 
 async function saveRequestToIndexedDB(request) {
   console.log('Inside save ...function');
@@ -130,14 +162,15 @@ self.addEventListener('fetch', (event) => {
       .then(async (networkResponse) => {
         if (eventRequest.url.indexOf('insert-post') > -1) {
           return networkResponse;
-        } else if (eventRequest.url.indexOf('get-posts') > -1) {
+        }
+        if (eventRequest.url.indexOf('get-posts') > -1) {
           // const response = handleGetPostsRequest(eventRequest);
-          // console.log('DOUBT DOUBT DOUBT Reached At End', response);
-          try{
+          try {
             const posts = await networkResponse.clone().json();
             const simplifiedPosts = posts.slice(0, 5).map(({ _id, image }) => ({ _id, image }));
 
             // save the new array of objects to indexedDB
+            // eslint-disable-next-line no-use-before-define
             const db = requestIDB.result;
             const transaction = db.transaction(['SavedPosts'], 'readwrite');
             const savedPostsStore = transaction.objectStore('SavedPosts');
@@ -152,51 +185,73 @@ self.addEventListener('fetch', (event) => {
               savedPostsStore.add(post);
             });
 
-
             console.log('Network response');
             return networkResponse;
-          }catch(error){
+          } catch (error) {
             console.log(error);
           }
           return networkResponse;
+        } if (eventRequest.url.indexOf('sighting-detail') > -1) {
+          console.log('DEBUG...', networkResponse.clone().json().then((res) => {
+            console.log('Real check', res);
+          }));
+          return networkResponse;
         }
         return caches.open(cacheName).then((cache) => {
+          if (eventRequest.url.includes('/sighting/')) {
+            console.log('Sighting request detected');
+            // const cacheKeys = cache.keys();
+            // const sightingCacheKey = cacheKeys.find((key) => key.url.includes('/sighting/'));
+            // if (!sightingCacheKey) {
+            cache.put('/sighting/', networkResponse.clone());
+            // }
+            return networkResponse;
+          }
           cache.put(eventRequest, networkResponse.clone());
           return networkResponse;
         });
       })
       .catch(async () => {
-      if (eventRequest.url.indexOf('insert-post') > -1) {
-        const postIndexedDBID = await saveRequestToIndexedDB(eventRequest);
-        // eslint-disable-next-line no-use-before-define
-        registerSyncEvent(`insert-post-sync-${postIndexedDBID}`)
-          .then(() => {
-            console.log('sync event registered successfully');
-          })
-          .catch((error) => {
-            console.log('sync event registration failed: ', error);
-          });
+        if (eventRequest.url.indexOf('insert-post') > -1) {
+          const postIndexedDBID = await saveRequestToIndexedDB(eventRequest);
+          // eslint-disable-next-line no-use-before-define
+          registerSyncEvent(`insert-post-sync-${postIndexedDBID}`)
+            .then(() => {
+              console.log('sync event registered successfully');
+            })
+            .catch((error) => {
+              console.log('sync event registration failed: ', error);
+            });
 
-        return new Response(JSON.stringify({ message: 'success' }), {
-          headers: { 'Content-Type': 'application/json' },
-          status: 200
-        });
-      }else if(eventRequest.url.indexOf('get-posts') > -1){
-        const response = await handleGetPostsRequest(eventRequest);
-        console.log('Reached At End', response);
-        return Promise.resolve(response);
-      }
-      return caches.open(cacheName)
-        .then((cache) => cache.match(eventRequest))
-        .then((response) => {
-          // If a cached response is available, return it
-          if (response) {
-            return response;
-          }
-          // Otherwise, return a network error response
-          return new Response('Network unavailable', { status: 503 });
-        });
-    }),
+          return new Response(JSON.stringify({ message: 'success' }), {
+            headers: { 'Content-Type': 'application/json' },
+            status: 200,
+          });
+        } if (eventRequest.url.indexOf('get-posts') > -1) {
+          const response = await handleGetPostsRequest(eventRequest);
+          console.log('Reached At End', response);
+          return Promise.resolve(response);
+        } if (eventRequest.url.indexOf('sighting-detail') > -1) {
+          const response = await handleGetSightingDetailRequest(eventRequest);
+          // response.clone().json().then((res2) => {
+          //   console.log('CHECK', res2);
+          // });
+          return Promise.resolve(response);
+        }
+        return caches.open(cacheName)
+          .then(async (cache) => {
+            if (eventRequest.url.includes('/sighting/')) {
+              return cache.match('/sighting/');
+            }
+            return cache.match(eventRequest);
+          })
+          .then((response) => {
+            if (response) {
+              return response;
+            }
+            return new Response('Network unavailable', { status: 503 });
+          });
+      }),
   );
 });
 
@@ -228,8 +283,8 @@ const handleUpgrade = (event) => {
   console.log('INDEXEDDB UPGRADEED');
   const db = event.target.result;
   db.createObjectStore('postRequests', { keyPath: 'id', autoIncrement: true });
-  db.createObjectStore('SavedPosts', { keyPath: 'id', autoIncrement: true });
-
+  const savedPostObjectStore = db.createObjectStore('SavedPosts', { keyPath: 'id', autoIncrement: true });
+  // savedPostObjectStore.createIndex('_id', '_id');
 };
 
 // handle success event on indexedDB connection
