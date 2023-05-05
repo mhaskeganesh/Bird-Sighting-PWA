@@ -3,9 +3,21 @@
     <%- include("base-header"); -%>
     <body>
         <%- include("navbar"); -%>
-        <div class="container">
-            <h1 class="text-center">Bird Sighting App</h1>
-            <p>Listing in progress</p>
+        <div class="container my-4">
+            <div class="d-flex">
+                <h5 class="mb-3">Bird Listing</h5>
+                <div class="ms-auto">
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Sort By
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Date</a></li>
+                            <li><a class="dropdown-item" href="#">Location</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
             <div id="listing-card-wrapper" class="row">
                 <div id="listing-card-template" class="col-md-4 d-none">
                     <div class="listing-card card h-100 ">
