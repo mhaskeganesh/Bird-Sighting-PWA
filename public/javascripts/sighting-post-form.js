@@ -30,7 +30,8 @@ function handleSubmit(event) {
     // eslint-disable-next-line consistent-return
   }).then((response) => {
     if (response.status === 200) {
-      alert('Data saved successfully');
+      // Add redirection in the later stage to detail page
+      window.location.href = '/';
       // return response.json();
     }
     console.log('Something went wrong...');
