@@ -7,7 +7,6 @@ const getFormattedDate = (date) => {
   return `${formattedDate.getDate()} ${formattedDate.toLocaleString('default', { month: 'long' })}  ${formattedDate.getFullYear()}`;
 }
 
-const imagesContainer = document.querySelector('#images-container');
 
 fetch('/get-posts')
   .then((response) => {
@@ -23,11 +22,17 @@ fetch('/get-posts')
       const cardTemplateWrapper = document.getElementById('listing-card-template').cloneNode(true);
       const cardTemplate = cardTemplateWrapper.children[0];
 
+
       // Remove the d-none class
       cardTemplateWrapper.classList.remove('d-none');
 
       // Set the attribute
       cardTemplate.setAttribute('data-id', post._id);
+
+      // Set Event listener
+      cardTemplate.addEventListener('click', (event) => {
+        console.log( 'data-id', event.currentTarget.getAttribute('data-id'));
+      });
 
       // Fill the details
       cardTemplate.firstElementChild.src = post.image;
@@ -48,10 +53,15 @@ fetch('/get-posts')
   })
   .catch((error) => console.log(error));
 
-// add event listener to each image element
-imagesContainer.addEventListener('click', (event) => {
-  const clickedImageId = event.target.getAttribute('data-id');
-  console.log('Clicked image ID: ', clickedImageId);
-  // send the clickedImageId to the server
 
-});
+// add event listener to each image element
+// imagesContainer.forEach((image) => {
+//   console.log(image)
+//   image.addEventListener('click', (event) => {
+//     console.log("Hii")
+//     const clickedImageId = event.target.getAttribute('data-id');
+//     console.log('Clicked image ID: ', clickedImageId);
+//     // send the clickedImageId to the server
+//   });
+// });
+//
