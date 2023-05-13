@@ -3,17 +3,25 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "sass": "sass --watch public/stylesheets/sass/app.scss public/stylesheets/app.css",
+    "build-css": "postcss public/stylesheets/app.css --use autoprefixer cssnano -d public/stylesheets"
   },
   "dependencies": {
+    "autoprefixer": "^10.4.14",
+    "bootstrap": "^5.3.0-alpha3",
     "cookie-parser": "~1.4.4",
+    "cssnano": "^6.0.1",
     "debug": "~2.6.9",
     "dotenv": "^16.0.3",
     "ejs": "~2.6.1",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "mongoose": "^7.0.4",
-    "morgan": "~1.9.1"
+    "morgan": "~1.9.1",
+    "postcss": "^8.4.23",
+    "postcss-cli": "^10.1.0",
+    "sass": "^1.62.1"
   },
   "devDependencies": {
     "eslint": "^7.32.0 || ^8.2.0",
