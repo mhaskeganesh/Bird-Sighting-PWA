@@ -60,3 +60,48 @@ function imageUploaded() {
   };
   reader.readAsDataURL(file);
 }
+
+const sparqlQuery = `
+  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX dbo: <http://dbpedia.org/ontology/>
+  
+  SELECT ?bird ?name
+  WHERE 
+  {
+    ?bird rdf:type dbo:Bird .
+    ?bird rdfs:label ?name .
+    FILTER (lang(?name) = "en")
+  }
+`;
+
+const sparqlEndpoint = 'http://dbpedia.org/sparql';
+
+async function getBirds() {
+  try {
+    const response = await fetch(`${sparqlEndpoint}?query=${encodeURIComponent(sparqlQuery)}&format=json`);
+    const data = await response.json();
+    const birds = data.results.bindings.map((binding) => ({
+      value: binding.bird.value,
+      label: binding.name.value,
+    }));
+    return birds;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+const initiateChoices = () => {
+  const element = document.querySelector('#identification');
+  // Added via CDN
+  const choices = new Choices(element, {
+    shouldSort: false,
+    shouldSortItems: false,
+    renderChoiceLimit: 10,
+  });
+  choices.setChoices(async () => await getBirds());
+};
+
+window.onload = () => {
+  initiateChoices();
+};
