@@ -1,7 +1,7 @@
 {
   "name": "Bird Sighting App",
   "short-name": "Bird Sight",
-  "start_url": "/sighting-post-form",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#3E4EB8",
   "theme_color": "#2F3BA2",

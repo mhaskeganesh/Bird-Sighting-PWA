@@ -1,3 +1,6 @@
+/**
+ * Retrieves all sighting posts with images and IDs from the database.
+ * */
 const SightingPost = require('../../models/sighting_post');
 
 const getAllPostsWithImagesAndIds = async (req, res) => {
