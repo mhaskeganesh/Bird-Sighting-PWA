@@ -14,6 +14,8 @@ const insertSightingPost = (req, res) => {
     timestamp,
     description,
     user_nickname,
+    location,
+    identification,
   });
   SightingPostObject.save().then(() => {
     res.status(200).json({
