@@ -18,14 +18,25 @@ function handleSubmit(event) {
   const form = event.target;
   const formData = new FormData(form);
 
+  // Process Identification
   const processedIdentification = formData.get('identification').split(';');
   const birdName = processedIdentification[0];
   const dbpediaUri = processedIdentification[1];
+
+  // Process Location;
+  const processedLocation = formData.get('location').split(';');
+  const latitude = processedLocation[0];
+  const longitude = processedLocation[1];
+
   const dataBody = {
     image: document.getElementById('bird_image').dataset.base64,
     timestamp: formData.get('date'),
     description: formData.get('description'),
     user_nickname: formData.get('user_nickname'),
+    location: {
+      latitude,
+      longitude,
+    },
     identification: {
       name: birdName,
       dbpedia_uri: dbpediaUri,
