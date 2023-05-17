@@ -18,11 +18,18 @@ function handleSubmit(event) {
   const form = event.target;
   const formData = new FormData(form);
 
+  const processedIdentification = formData.get('identification').split(';');
+  const birdName = processedIdentification[0];
+  const dbpediaUri = processedIdentification[1];
   const dataBody = {
     image: document.getElementById('bird_image').dataset.base64,
     timestamp: formData.get('date'),
     description: formData.get('description'),
     user_nickname: formData.get('user_nickname'),
+    identification: {
+      name: birdName,
+      dbpedia_uri: dbpediaUri,
+    },
   };
   const headers = new Headers();
   headers.append('Content-Type', 'application/json');
@@ -82,7 +89,7 @@ async function getBirds() {
     const response = await fetch(`${sparqlEndpoint}?query=${encodeURIComponent(sparqlQuery)}&format=json`);
     const data = await response.json();
     const birds = data.results.bindings.map((binding) => ({
-      value: binding.bird.value,
+      value: `${binding.bird.value};${binding.name.value}`,
       label: binding.name.value,
     }));
     return birds;

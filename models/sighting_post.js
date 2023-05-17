@@ -14,7 +14,10 @@ const sightingPostSchema = new Schema({
   timestamp: { type: Date },
   description: { type: String },
   user_nickname: { type: String },
-  identification: { type: Identification.schema },
+  identification: {
+    name: { type: String },
+    dbpedia_uri: { type: String },
+  },
 });
 
 const SightingPost = mongoose.model('sighting_post', sightingPostSchema);
