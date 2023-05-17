@@ -114,7 +114,12 @@ fetch('/get-posts')
 
       // Set Event listener
       cardTemplate.addEventListener('click', (event) => {
-        console.log('data-id', event.currentTarget.getAttribute('data-id'));
+        console.log('data-id:::', event.currentTarget.getAttribute('data-id'));
+        const clickedImageId = event.currentTarget.getAttribute('data-id');
+        if (clickedImageId !== null) {
+          console.log(`/sighting/?id=${clickedImageId}`)
+          window.location.href = `/sighting/?id=${clickedImageId}`;
+        }
       });
 
       // Fill the details
