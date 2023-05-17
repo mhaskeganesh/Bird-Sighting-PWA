@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
+    "start-dev": "nodemon ./bin/www & yarn run sass",
     "sass": "sass --watch public/stylesheets/sass/app.scss public/stylesheets/app.css",
     "build-css": "postcss public/stylesheets/app.css --use autoprefixer cssnano -d public/stylesheets"
   },
@@ -19,6 +20,7 @@
     "http-errors": "~1.6.3",
     "mongoose": "^7.0.4",
     "morgan": "~1.9.1",
+    "nodemon": "^2.0.22",
     "postcss": "^8.4.23",
     "postcss-cli": "^10.1.0",
     "sass": "^1.62.1"

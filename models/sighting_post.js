@@ -10,10 +10,18 @@ const Identification = require('./identification.js');
 const { Schema } = mongoose;
 
 const sightingPostSchema = new Schema({
-  image: { type: String },
-  timestamp: { type: Date },
-  description: { type: String },
-  user_nickname: { type: String },
+  image: String,
+  timestamp: String,
+  description: String,
+  user_nickname: { type: String, required: true },
+  location: {
+    latitude: String,
+    longitude: String,
+  },
+  identification: {
+    name: String,
+    dbpedia_uri: String,
+  },
 });
 
 const SightingPost = mongoose.model('sighting_post', sightingPostSchema);

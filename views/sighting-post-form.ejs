@@ -2,12 +2,13 @@
 <html>
   <%- include("base-header"); -%>
   <body>
+
   <%- include("navbar"); -%>
   <div class="container my-4">
     <h1>Post a Sighting</h1>
     <p>Upload a photo of a bird you saw and add a description. Other users will be able to comment on your post and help you identify the bird.</p>
 
-    <form action="/insert-post" method="post" onsubmit="return handleSubmit(event)">
+    <form onsubmit="return handleSubmit(event)">
       <div class="mb-3">
         <label for="bird_image" class="form-label">Choose an Image</label>
         <input type="file" id="bird_image" data-base64="" name="bird_image" accept="image/*" onchange="imageUploaded(event)" class="form-control" />
@@ -32,19 +33,44 @@
       </div>
 
       <div class="mb-3">
-        <label for="identification" class="form-label">Enter suggestion keyword for identification</label>
-        <input type="text" id="identification" name="identification" required class="form-control" />
+        <label for="identification" class="form-label">Search and select a bird identification</label>
+
+        <select id="identification" name="identification" required>
+        </select>
+
       </div>
+
+      <input type="text" id="location_data" hidden name="location_data">
+
+      <div id="gmap"></div>
+
+
+
 
       <div class="d-flex justify-content-end">
         <input type="submit" class="btn btn-success" value="Create Post">
       </div>
+
+
     </form>
+
+
+
+
   </div>
 
   </body>
 
+
   <%- include("base-footer"); -%>
   <script src="/javascripts/sighting-post-form.js"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+  <script src="/javascripts/google-maps-init.js"></script>
+
+  <script
+          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCtdUKuO9tYG2TMvHEh5Tjl0FuxB4N5i8Q&callback=initMap&v=weekly"
+          defer
+  ></script>
+
 
 </html>
