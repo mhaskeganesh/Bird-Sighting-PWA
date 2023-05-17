@@ -6,11 +6,6 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js');
 }
 
-const getFormattedDate = (date) => {
-  const formattedDate = new Date(date);
-  return `${formattedDate.getDate()} ${formattedDate.toLocaleString('default', { month: 'long' })}  ${formattedDate.getFullYear()}`;
-};
-
 /*
 * Handle the upgrade event for the indexedDB database.
 * Creates object stores for the postRequests and SavedPosts,
@@ -105,7 +100,6 @@ fetch('/get-posts')
       const cardTemplateWrapper = document.getElementById('listing-card-template').cloneNode(true);
       const cardTemplate = cardTemplateWrapper.children[0];
 
-
       // Remove the d-none class
       cardTemplateWrapper.classList.remove('d-none');
 
@@ -117,7 +111,7 @@ fetch('/get-posts')
         console.log('data-id:::', event.currentTarget.getAttribute('data-id'));
         const clickedImageId = event.currentTarget.getAttribute('data-id');
         if (clickedImageId !== null) {
-          console.log(`/sighting/?id=${clickedImageId}`)
+          console.log(`/sighting/?id=${clickedImageId}`);
           window.location.href = `/sighting/?id=${clickedImageId}`;
         }
       });
