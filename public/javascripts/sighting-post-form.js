@@ -5,6 +5,16 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js');
 }
 
+const setErrorMessage = (msg) => {
+  const alertMessage = document.getElementById('error-message');
+
+  alertMessage.style.display = 'block';
+  alertMessage.innerHTML = msg;
+
+  // scroll to top
+  window.scrollTo(0, 0);
+};
+
 /**
  * This function is called when a user submits a form for inserting a new post.
  * It first prevents the default form submission behavior.
@@ -18,15 +28,25 @@ function handleSubmit(event) {
   const form = event.target;
   const formData = new FormData(form);
 
+  // eslint-disable-next-line
+  let latitude, longitude, birdName, dbpediaUri
   // Process Identification
-  const processedIdentification = formData.get('identification').split(';');
-  const birdName = processedIdentification[0];
-  const dbpediaUri = processedIdentification[1];
+  let processedIdentification = formData.get('identification');
+  if (processedIdentification && processedIdentification !== '') {
+    processedIdentification = processedIdentification.split(';');
+    [birdName, dbpediaUri] = processedIdentification;
+  } else {
+    return setErrorMessage('Please select a bird name');
+  }
 
   // Process Location;
-  const processedLocation = formData.get('location').split(';');
-  const latitude = processedLocation[0];
-  const longitude = processedLocation[1];
+  let processedLocation = formData.get('location_data');
+  if (processedLocation && processedLocation !== '') {
+    processedLocation = processedLocation.split(';');
+    [latitude, longitude] = processedLocation;
+  } else {
+    return setErrorMessage('Please select a location');
+  }
 
   const dataBody = {
     image: document.getElementById('bird_image').dataset.base64,

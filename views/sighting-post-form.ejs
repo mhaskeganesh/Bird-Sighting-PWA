@@ -5,54 +5,66 @@
 
   <%- include("navbar"); -%>
   <div class="container my-4">
-    <h1>Post a Sighting</h1>
-    <p>Upload a photo of a bird you saw and add a description. Other users will be able to comment on your post and help you identify the bird.</p>
-
-    <form onsubmit="return handleSubmit(event)">
-      <div class="mb-3">
-        <label for="bird_image" class="form-label">Choose an Image</label>
-        <input type="file" id="bird_image" data-base64="" name="bird_image" accept="image/*" onchange="imageUploaded(event)" class="form-control" />
-      </div>
-
-      <div class="mb-3">
-        <label for="date" class="form-label">Select Date</label>
-        <input type="date" id="date" name="date" class="form-control" />
-      </div>
-
-      <div class="mb-3">
-        <label for="description" class="form-label">Description:</label>
-        <textarea id="description" name="description" rows="4" cols="40" class="form-control" ></textarea>
-      </div>
-
-      <div class="mb-3">
-        <label for="nickname" class="form-label">Enter your nickname</label>
-        <input type="text" id="user_nickname" name="user_nickname" required class="form-control" />
-        <div class="form-text">
-          Nickname is required to make future edit to the posts
+    <div class="d-flex">
+      <div class="d-flex align-items-center flex-basis-50">
+        <div>
+          <h1>Post a Sighting</h1>
+          <p>Upload a photo of a bird you saw and add a description.</p>
         </div>
-      </div>
-
-      <div class="mb-3">
-        <label for="identification" class="form-label">Search and select a bird identification</label>
-
-        <select id="identification" name="identification" required>
-        </select>
 
       </div>
+      <div class="flex-basis-50">
+        <form onsubmit="return handleSubmit(event)">
+          <div class="alert alert-danger" id="error-message">sad</div>
+          <div class="mb-3">
+            <label for="bird_image" class="form-label">Choose an Image</label>
+            <input type="file" id="bird_image" data-base64="" name="bird_image" accept="image/*" onchange="imageUploaded(event)" class="form-control" required />
+          </div>
 
-      <input type="text" id="location_data" hidden name="location_data">
+          <div class="mb-3">
+            <label for="date" class="form-label">Select Date</label>
+            <input type="date" id="date" name="date" class="form-control" required />
+          </div>
 
-      <div id="gmap"></div>
+          <div class="mb-3">
+            <label for="description" class="form-label">Description:</label>
+            <textarea id="description" name="description" rows="4" cols="40" class="form-control" required ></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="nickname" class="form-label">Enter your nickname</label>
+            <input type="text" id="user_nickname" name="user_nickname" required class="form-control" />
+            <div class="form-text">
+              Nickname is required to make future edit to the posts
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="identification" class="form-label">Search and select a bird identification</label>
+
+            <select class="form-control" id="identification" name="identification">
+            </select>
+
+          </div>
+
+          <input type="text" id="location_data" hidden name="location_data">
+
+          <div id="gmap"></div>
 
 
 
 
-      <div class="d-flex justify-content-end">
-        <input type="submit" class="btn btn-success" value="Create Post">
+          <div class="d-flex justify-content-end">
+            <input type="submit" class="btn btn-success mt-4" value="Create Post">
+          </div>
+
+
+        </form>
+
       </div>
+    </div>
 
 
-    </form>
 
 
 

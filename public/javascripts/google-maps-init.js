@@ -10,6 +10,7 @@ function initMap() {
     center: { lat: 53.38, lng: -1.4691 },
     zoom: 11,
   });
+  infoWindow = new google.maps.InfoWindow();
 
   const locationButton = document.createElement('div');
 
@@ -39,11 +40,13 @@ function initMap() {
         },
         () => {
           handleLocationError(true, infoWindow, map.getCenter());
+          setErrorMessage('Please enable location in your browser');
         },
       );
     } else {
       // Browser doesn't support Geolocation
       handleLocationError(false, infoWindow, map.getCenter());
+      setErrorMessage('Sorry your browser doesn\'t support location services');
     }
   });
 }

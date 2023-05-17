@@ -11858,12 +11858,20 @@ textarea.form-control-lg {
   transform: scale(1.02);
 }
 
+.flex-basis-50 {
+  flex-basis: 50%;
+}
+
+#error-message {
+  display: none;
+}
+
 /*
  * Always set the map height explicitly to define the size of the div element
  * that contains the map.
  */
 #gmap {
-  height: 500px;
+  height: 300px;
 }
 
 /*
