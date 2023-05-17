@@ -1,76 +1,43 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Sighting Detail Page</title>
-    <%- include("base-header"); -%>
-    <style>
-        .container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            margin-top: 50px;
-        }
-        #sighting-image {
-            width: 500px;
-            height: 300px;
-            max-height: 500px;
-            object-fit: cover;
-        }
-        .sighting-details {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 20px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-        }
-        .sighting-comment-section {
-
-            width: 100%;
-            height: 200px;
-            margin-top: 50px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            padding: 20px;
-
-        }
-        #messages{
-            overflow-y: auto;
-            height: 100px;
-        }
-        .message_box > *{
-            margin: 2px;
-        }
-    </style>
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-</head>
-<body>
-<div class="container">
-    <a href="/">
-        <button>Home Page</button></a>
-
-    <img id="sighting-image" src="" alt="Sighting Image" />
-    <div class="sighting-details">
-        <div class="sighting-info">
-            Date: <span id="date"></span><br>
-            Description: <span id="desc"></span><br>
-            User Nickname: <span id="username"></span><br>
-        </div>
-    </div>
-        <div class="sighting-comment-section border rounded-5 m-5">
-            <div class=" mt-auto">
-                <div id="messages"></div>
-                <div class="d-flex message_box flex-row mb-3 mx-2 ">
-                    <input class="input-group-text" type="text" id="name" style=display:block name="name" placeholder="Your name">
-                    <input class="input-group-text w-75" type="text" id="message-input">
-                    <button type="button" class="w-25 btn btn-primary" onclick=sendmessage(event)>Send</button>
+    <head>
+        <title>Sighting Detail Page</title>
+        <%- include("base-header"); -%>
+        <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    </head>
+    <body>
+    <%- include("navbar"); -%>
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-md-6">
+                    <img id="sighting-image" src="" alt="Sighting Image" />
                 </div>
-                <script src="/javascripts/socketHandler.js"></script>
-</div>
-    </div>
-</div>
-</body>
-<script src="/javascripts/sighting-page.js"></script>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="sighting-info">
+                                Date: <span id="date"></span><br>
+                                Description: <span id="desc"></span><br>
+                                User Nickname: <span id="username"></span><br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+                <div class="sighting-comment-section border rounded-5 m-5">
+                    <div class=" mt-auto">
+                        <div id="messages"></div>
+                        <div class="d-flex message_box flex-row mb-3 mx-2 ">
+                            <input class="input-group-text" type="text" id="name" style=display:block name="name" placeholder="Your name">
+                            <input class="input-group-text w-75" type="text" id="message-input">
+                            <button type="button" class="w-25 btn btn-primary" onclick=sendmessage(event)>Send</button>
+                        </div>
+                        <script src="/javascripts/socketHandler.js"></script>
+        </div>
+            </div>
+        </div>
+    </body>
+    <script src="/javascripts/sighting-page.js"></script>
 </html>

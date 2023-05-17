@@ -34,7 +34,7 @@ function handleSubmit(event) {
   let processedIdentification = formData.get('identification');
   if (processedIdentification && processedIdentification !== '') {
     processedIdentification = processedIdentification.split(';');
-    [birdName, dbpediaUri] = processedIdentification;
+    [dbpediaUri, birdName] = processedIdentification;
   } else {
     return setErrorMessage('Please select a bird name');
   }
