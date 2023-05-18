@@ -14,14 +14,23 @@ const sightingPostSchema = new Schema({
   timestamp: String,
   description: String,
   user_nickname: { type: String, required: true },
+
   location: {
     latitude: String,
     longitude: String,
   },
+
   identification: {
     name: String,
     dbpedia_uri: String,
   },
+
+  chat: [
+    {
+      user: String,
+      message: String,
+    },
+  ],
 });
 
 const SightingPost = mongoose.model('sighting_post', sightingPostSchema);
