@@ -8,7 +8,19 @@ const messageWrapper = document.getElementById('message-input-wrapper');
 
 const userNameForm = document.getElementById('userNameForm');
 const messageForm = document.getElementById('messageForm');
+function writeMessageOnChat(user, message, isUser) {
+  const messageElement = document.createElement('div');
+  const paragraph = document.createElement('p');
+  if (isUser) {
+    paragraph.classList.add(['text-end']);
+    paragraph.classList.add(['me-4']);
+  }
 
+  paragraph.innerHTML = `<b> ${user}:</b> ${message}`;
+  messageElement.appendChild(paragraph);
+  messages.appendChild(messageElement);
+  messages.scrollTop = messages.scrollHeight;
+}
 const getPageID = () => {
   const searchParams = getURLSearchParms();
   return searchParams?.id;
@@ -22,6 +34,7 @@ function sendMessage(event) {
 
   if (message) {
     socket.emit('message', pageID, user, message);
+    writeMessageOnChat(user, message, true);
     messageInput.value = '';
     document.getElementById('name').style.display = 'none';
   }
@@ -43,12 +56,7 @@ function chatInit() {
 
   socket.on('message', (pageID, user, message) => {
     console.log('client message', user, message);
-    const messageElement = document.createElement('div');
-    const paragraph = document.createElement('p');
-    paragraph.innerHTML = `<b> ${user}:</b> ${message}`;
-    messageElement.appendChild(paragraph);
-    messages.appendChild(messageElement);
-    messages.scrollTop = messages.scrollHeight;
+    writeMessageOnChat(user, message);
   });
 }
 

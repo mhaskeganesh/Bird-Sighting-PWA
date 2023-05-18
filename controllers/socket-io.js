@@ -12,14 +12,12 @@ exports.init = function (io) {
 
     socket.on('message', async (pageID, user, message) => {
       console.log(`Received message: ${pageID} ${user} ${message}`);
-      io.to(pageID).emit('message', pageID, user, message);
+      socket.to(pageID).emit('message', pageID, user, message);
 
       // Set up chat in database
       const sightingPost = await SightingPost.findById(pageID);
 
-      console.log(sightingPost.chat);
-
-      const res = await SightingPost.findByIdAndUpdate(pageID, {
+      await SightingPost.findByIdAndUpdate(pageID, {
         ...sightingPost._doc,
         chat: [
           ...sightingPost.chat,
@@ -28,9 +26,8 @@ exports.init = function (io) {
             message,
           },
         ],
-      }).exec();
-
-      console.log(res);
+      })
+        .exec();
     });
 
     socket.on('disconnect', () => {
