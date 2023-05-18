@@ -11913,7 +11913,7 @@ textarea.form-control-lg {
 
 #messages {
   overflow-y: auto;
-  height: 100px;
+  max-height: 400px;
 }
 
 .message_box > * {

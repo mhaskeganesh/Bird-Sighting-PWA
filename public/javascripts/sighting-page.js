@@ -40,6 +40,9 @@ fetch('/sighting-detail', {
       lng: parseFloat(postData?.location?.longitude),
     });
 
+    (postData?.chat || []).forEach((chat) => {
+      writeMessageOnChat(chat.user, chat.message);
+    });
     // User Data
     setDataById('user-date', getFormattedDate(postData.timestamp));
     setDataById('user-name', postData.user_nickname);
