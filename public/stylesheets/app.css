@@ -11920,4 +11920,8 @@ textarea.form-control-lg {
   margin: 2px;
 }
 
+#message-input-wrapper {
+  display: none;
+}
+
 /*# sourceMappingURL=app.css.map */

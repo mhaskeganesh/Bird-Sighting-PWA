@@ -28,19 +28,39 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
-                <div class="sighting-comment-section border rounded-5 m-5">
-                    <div class=" mt-auto">
-                        <div id="messages"></div>
-                        <div class="d-flex message_box flex-row mb-3 mx-2 ">
-                            <input class="input-group-text" type="text" id="name" style=display:block name="name" placeholder="Your name">
-                            <input class="input-group-text w-75" type="text" id="message-input">
-                            <button type="button" class="w-25 btn btn-primary" onclick=sendmessage(event)>Send</button>
-                        </div>
-                        <script src="/javascripts/socketHandler.js"></script>
-        </div>
+            <div class="card mt-5">
+                <div class="card-body">
+                    <h4>Chat</h4>
+                    <hr />
+                    <div id="messages"></div>
+                    <div class="d-flex">
+                        <form class="w-100" onsubmit="sendmessage(event)">
+                            <div class="row">
+<!--                                <div class="col-md-8">-->
+<!--                                    <input class="form-control" type="text" id="name" style=display:block name="name" placeholder="Your name">-->
+<!--                                </div>-->
+
+                                <div class="col-md-11" id="message-name-wrapper">
+                                    <input class="form-control" type="text" id="name" name="name" placeholder="Your name">
+                                </div>
+
+                                <div class="col-md-11" id="message-input-wrapper">
+                                    <input class="form-control" placeholder="Enter your message"  type="text" id="message-input">
+                                </div>
+
+                                <div class="col-md-1">
+                                    <button type="submit" class="btn btn-primary w-100">Send</button>
+
+                                </div>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
             </div>
         </div>
     </body>
@@ -49,4 +69,6 @@
       ({key: "AIzaSyCtdUKuO9tYG2TMvHEh5Tjl0FuxB4N5i8Q", v: "weekly"});</script>
     <script src="/javascripts/google-map-show-location.js"></script>
     <script src="/javascripts/sighting-page.js"></script>
+    <script src="/javascripts/socketHandler.js"></script>
+
 </html>
