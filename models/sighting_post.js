@@ -23,6 +23,7 @@ const sightingPostSchema = new Schema({
   identification: {
     name: String,
     dbpedia_uri: String,
+    abstract: String,
   },
 
   chat: [

@@ -29,12 +29,12 @@ function handleSubmit(event) {
   const formData = new FormData(form);
 
   // eslint-disable-next-line
-  let latitude, longitude, birdName, dbpediaUri
+  let latitude, longitude, birdName, dbpediaUri, birdAbstract;
   // Process Identification
   let processedIdentification = formData.get('identification');
   if (processedIdentification && processedIdentification !== '') {
     processedIdentification = processedIdentification.split(';');
-    [dbpediaUri, birdName] = processedIdentification;
+    [dbpediaUri, birdName, birdAbstract] = processedIdentification;
   } else {
     return setErrorMessage('Please select a bird name');
   }
@@ -60,6 +60,7 @@ function handleSubmit(event) {
     identification: {
       name: birdName,
       dbpedia_uri: dbpediaUri,
+      abstract: birdAbstract,
     },
   };
   const headers = new Headers();
@@ -104,12 +105,13 @@ const sparqlQuery = `
   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
   PREFIX dbo: <http://dbpedia.org/ontology/>
   
-  SELECT ?bird ?name
+  SELECT ?bird ?name ?abstract
   WHERE 
   {
     ?bird rdf:type dbo:Bird .
     ?bird rdfs:label ?name .
-    FILTER (lang(?name) = "en")
+    ?bird dbo:abstract ?abstract .
+    FILTER (lang(?name) = "en" && lang(?abstract) = "en")
   }
 `;
 
@@ -120,7 +122,7 @@ async function getBirds() {
     const response = await fetch(`${sparqlEndpoint}?query=${encodeURIComponent(sparqlQuery)}&format=json`);
     const data = await response.json();
     const birds = data.results.bindings.map((binding) => ({
-      value: `${binding.bird.value};${binding.name.value}`,
+      value: `${binding.bird.value};${binding.name.value};${binding.abstract.value}`,
       label: binding.name.value,
     }));
     return birds;
