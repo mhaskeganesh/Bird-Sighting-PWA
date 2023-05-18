@@ -28,6 +28,7 @@ fetch('/sighting-detail', {
 })
   .then((res) => res.json())
   .then((postData) => {
+    console.log('Post Data', postData);
     post = postData;
     document.getElementById('sighting-image').src = postData.image;
 

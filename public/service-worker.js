@@ -94,6 +94,7 @@ async function handleGetSightingDetailRequest(eventRequest) {
   const id = url.substring(url.indexOf('=') + 1);
 
   let postDetail = null;
+
   if (id.includes('offid:')) {
     let postId = id.replace(/^offid:/, '');
     postId = parseInt(postId);
@@ -129,6 +130,9 @@ async function handleGetPostsRequest(eventRequest) {
   const sightings = [...savedPosts, ...newOfflinePosts].map((post) => ({
     _id: post._id || `offid:${post.id}`,
     image: post.image,
+    description: post?.description,
+    user_nickname: post?.user_nickname,
+    timestamp: post?.timestamp,
   }));
 
   return new Response(JSON.stringify(sightings), {
@@ -318,6 +322,8 @@ self.addEventListener('sync', (event) => {
         timestamp: post.timestamp,
         description: post.description,
         user_nickname: post.user_nickname,
+        location: post?.location,
+        identification: post?.identification,
       };
       const headers = new Headers();
       headers.append('Content-Type', 'application/json');

@@ -60,7 +60,7 @@ const requestIDB = (() => {
  */
 async function savePostsToIndexedDB(posts) {
   try {
-    const simplifiedPosts = posts.slice(0, 5).map(({ _id, image }) => ({ _id, image }));
+    // const simplifiedPosts = posts.slice(0, 5).map(({ _id, image }) => ({ _id, image }));
 
     // save the new array of objects to indexedDB
     // eslint-disable-next-line no-use-before-define
@@ -73,7 +73,7 @@ async function savePostsToIndexedDB(posts) {
       deleteAllRequest.onsuccess = resolve;
       deleteAllRequest.onerror = resolve;
     });
-    simplifiedPosts.forEach((post) => {
+    posts.forEach((post) => {
       savedPostsStore.add(post);
     });
   } catch (error) {
@@ -124,7 +124,8 @@ fetch('/get-posts')
 
       // append to wrapper
       listingCardWrapper.appendChild(cardTemplateWrapper);
-      savePostsToIndexedDB(posts);
     });
+
+    savePostsToIndexedDB(posts);
   })
   .catch((error) => console.log(error));
