@@ -9,7 +9,7 @@ if ('serviceWorker' in navigator) {
 const urlParams = new URLSearchParams(window.location.search);
 const postId = urlParams.get('id');
 // This variable will be used to store the post details.
-let post = null;
+const post = null;
 // Offline message string
 const dataUnavailableMessage = 'Data isnt available / offline';
 
@@ -28,8 +28,6 @@ fetch('/sighting-detail', {
 })
   .then((res) => res.json())
   .then((postData) => {
-    console.log('Post Data', postData);
-    post = postData;
     document.getElementById('sighting-image').src = postData.image;
 
     // Bird data

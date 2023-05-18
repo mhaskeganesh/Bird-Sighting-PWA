@@ -6,6 +6,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js');
 }
 
+let allPosts = [];
 /*
 * Handle the upgrade event for the indexedDB database.
 * Creates object stores for the postRequests and SavedPosts,
@@ -53,6 +54,67 @@ const requestIDB = (() => {
 }
 )();
 
+const renderListingCards = (posts) => {
+  console.log(posts);
+
+  // Get card wrapper
+  const listingCardWrapper = document.getElementById('listing-card-wrapper');
+  listingCardWrapper.innerHTML = '';
+
+  posts.forEach((post) => {
+    // Get the card template
+    const cardTemplateWrapper = document.getElementById('listing-card-template')
+      .cloneNode(true);
+    const cardTemplate = cardTemplateWrapper.children[0];
+
+    // Remove the d-none class
+    cardTemplateWrapper.classList.remove('d-none');
+
+    // Set the attribute
+    cardTemplate.setAttribute('data-id', post._id);
+
+    // Set Event listener
+    cardTemplate.addEventListener('click', (event) => {
+      console.log('data-id:::', event.currentTarget.getAttribute('data-id'));
+      const clickedImageId = event.currentTarget.getAttribute('data-id');
+      if (clickedImageId !== null) {
+        console.log(`/sighting/?id=${clickedImageId}`);
+        window.location.href = `/sighting/?id=${clickedImageId}`;
+      }
+    });
+
+    // Fill the details
+    cardTemplate.firstElementChild.src = post.image;
+    cardTemplate.lastElementChild.children[0].innerHTML = post.description;
+    cardTemplate.lastElementChild.children[1].innerHTML = post.user_nickname;
+    cardTemplate.lastElementChild.children[2].innerHTML = getFormattedDate(post.timestamp);
+
+    // append to wrapper
+    listingCardWrapper.appendChild(cardTemplateWrapper);
+  });
+};
+
+const sortPostByDescendingOrder = () => {
+  // sort allPosts based on timestamp in descending order
+  const sortedPosts = allPosts.sort((a, b) => {
+    const dateA = new Date(a.timestamp);
+    const dateB = new Date(b.timestamp);
+    return dateB - dateA;
+  });
+
+  renderListingCards(sortedPosts);
+};
+
+const sortPostByAscendingOrder = () => {
+  // sort allPosts based on timestamp in ascending order
+  const sortedPosts = allPosts.sort((a, b) => {
+    const dateA = new Date(a.timestamp);
+    const dateB = new Date(b.timestamp);
+    return dateA - dateB;
+  });
+  renderListingCards(sortedPosts);
+};
+
 /**
  * Saves up to 5 posts into the SavedPosts object store in indexedDB.
  * Also, previously saved posts are cleared.
@@ -61,6 +123,7 @@ const requestIDB = (() => {
 async function savePostsToIndexedDB(posts) {
   try {
     // const simplifiedPosts = posts.slice(0, 5).map(({ _id, image }) => ({ _id, image }));
+    renderListingCards(posts);
 
     // save the new array of objects to indexedDB
     // eslint-disable-next-line no-use-before-define
@@ -91,41 +154,7 @@ fetch('/get-posts')
   .then((response) => response.json())
   .then((posts) => {
     console.log('All posts', posts);
-
-    // Get card wrapper
-    const listingCardWrapper = document.getElementById('listing-card-wrapper');
-
-    posts.forEach((post) => {
-      // Get the card template
-      const cardTemplateWrapper = document.getElementById('listing-card-template').cloneNode(true);
-      const cardTemplate = cardTemplateWrapper.children[0];
-
-      // Remove the d-none class
-      cardTemplateWrapper.classList.remove('d-none');
-
-      // Set the attribute
-      cardTemplate.setAttribute('data-id', post._id);
-
-      // Set Event listener
-      cardTemplate.addEventListener('click', (event) => {
-        console.log('data-id:::', event.currentTarget.getAttribute('data-id'));
-        const clickedImageId = event.currentTarget.getAttribute('data-id');
-        if (clickedImageId !== null) {
-          console.log(`/sighting/?id=${clickedImageId}`);
-          window.location.href = `/sighting/?id=${clickedImageId}`;
-        }
-      });
-
-      // Fill the details
-      cardTemplate.firstElementChild.src = post.image;
-      cardTemplate.lastElementChild.children[0].innerHTML = post.description;
-      cardTemplate.lastElementChild.children[1].innerHTML = post.user_nickname;
-      cardTemplate.lastElementChild.children[2].innerHTML = getFormattedDate(post.timestamp);
-
-      // append to wrapper
-      listingCardWrapper.appendChild(cardTemplateWrapper);
-    });
-
+    allPosts = posts;
     savePostsToIndexedDB(posts);
   })
   .catch((error) => console.log(error));
