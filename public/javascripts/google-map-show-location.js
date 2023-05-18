@@ -1,9 +1,4 @@
-// Note: This example requires that you consent to location sharing when
-// prompted by your browser. If you see the error "The Geolocation service
-// failed.", it means you probably did not give permission for the browser to
-// locate you.
-let map; let
-  infoWindow;
+let map;
 
 async function initMap(locationData) {
   const { Map } = await google.maps.importLibrary('maps');
@@ -22,15 +17,3 @@ async function initMap(locationData) {
     map.setZoom(15);
   }, 1000);
 }
-
-function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-  infoWindow.setPosition(pos);
-  infoWindow.setContent(
-    browserHasGeolocation
-      ? 'Error: The Geolocation service failed.'
-      : "Error: Your browser doesn't support geolocation.",
-  );
-  infoWindow.open(map);
-}
-
-// window.initMap = initMap;
