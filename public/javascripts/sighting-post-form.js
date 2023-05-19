@@ -36,7 +36,7 @@ function handleSubmit(event) {
     processedIdentification = processedIdentification.split(';');
     [dbpediaUri, birdName, birdAbstract] = processedIdentification;
   } else {
-    return setErrorMessage('Please select a bird name');
+    // return setErrorMessage('Please select a bird name');
   }
 
   // Process Location;
@@ -45,7 +45,7 @@ function handleSubmit(event) {
     processedLocation = processedLocation.split(';');
     [latitude, longitude] = processedLocation;
   } else {
-    return setErrorMessage('Please select a location');
+    // return setErrorMessage('Please select a location');
   }
 
   const dataBody = {

@@ -4,7 +4,6 @@
 const SightingPost = require('../../models/sighting_post');
 
 const insertSightingPost = (req, res) => {
-  console.log('Reaching till controller');
   const {
     image, timestamp, location, description, user_nickname, identification,
   } = req.body;

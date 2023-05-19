@@ -102,6 +102,7 @@ async function handleGetSightingDetailRequest(eventRequest) {
   } else {
     postDetail = await getFromStore(savedRequestsStore, 'get', id, '_id');
   }
+
   return new Response(JSON.stringify(postDetail), {
     headers: { 'Content-Type': 'application/json' },
   });
