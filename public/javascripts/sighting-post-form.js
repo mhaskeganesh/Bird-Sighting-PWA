@@ -100,6 +100,11 @@ function imageUploaded() {
   reader.readAsDataURL(file);
 }
 
+/**
+ * SPARQL query to retrieve bird names and abstracts from DBpedia.
+ *
+ * @type {string}
+ */
 const sparqlQuery = `
   PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -115,8 +120,18 @@ const sparqlQuery = `
   }
 `;
 
+/**
+ * SPARQL endpoint for DBpedia.
+ *
+ * @type {string}
+ */
 const sparqlEndpoint = 'http://dbpedia.org/sparql';
 
+/**
+ * This function sends a GET request to the DBpedia SPARQL endpoint with the sparqlQuery as query parameter.
+ *
+ * @returns {Promise<*>}
+ */
 async function getBirds() {
   try {
     const response = await fetch(`${sparqlEndpoint}?query=${encodeURIComponent(sparqlQuery)}&format=json`);
@@ -131,6 +146,9 @@ async function getBirds() {
   }
 }
 
+/**
+ * This function initiates the Choices library for the identification dropdown.
+ */
 const initiateChoices = () => {
   const element = document.querySelector('#identification');
   // Added via CDN

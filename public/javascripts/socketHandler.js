@@ -1,13 +1,19 @@
 const socket = io();
 
+// Get DOM Elements
 const messageInput = document.getElementById('message-input');
 const messages = document.getElementById('messages');
 const userName = document.getElementById('name');
-const userNameWrapper = document.getElementById('message-name-wrapper');
-const messageWrapper = document.getElementById('message-input-wrapper');
-
 const userNameForm = document.getElementById('userNameForm');
 const messageForm = document.getElementById('messageForm');
+
+/**
+ * This function is used to write the message on the chat interface.
+ *
+ * @param user
+ * @param message
+ * @param isUser
+ */
 function writeMessageOnChat(user, message, isUser) {
   const messageElement = document.createElement('div');
   const paragraph = document.createElement('p');
@@ -21,11 +27,21 @@ function writeMessageOnChat(user, message, isUser) {
   messages.appendChild(messageElement);
   messages.scrollTop = messages.scrollHeight;
 }
+
+/**
+ * This function is used to get the URL search parameters.
+ * @returns {*}
+ */
 const getPageID = () => {
   const searchParams = getURLSearchParms();
   return searchParams?.id;
 };
 
+/**
+ * This function is used to send message and emit the message event.
+ * It also writes the message on the chat interface.
+ * @param event
+ */
 function sendMessage(event) {
   event.preventDefault();
   const message = messageInput.value.trim();
@@ -40,6 +56,10 @@ function sendMessage(event) {
   }
 }
 
+/**
+ * This function is used to emit the create or join event.
+ * @param event
+ */
 function connectToRoom(event) {
   event.preventDefault();
   const pageID = getPageID();
@@ -49,6 +69,9 @@ function connectToRoom(event) {
   messageForm.style.display = 'block';
 }
 
+/**
+ * This function is used to initialize the chat methods.
+ */
 function chatInit() {
   socket.on('joined', (room, pageID) => {
     console.log(room, pageID);
