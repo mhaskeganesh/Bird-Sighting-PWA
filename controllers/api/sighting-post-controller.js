@@ -2,10 +2,14 @@
  * Controller function for inserting a sighting post into the database.
  */
 const SightingPost = require('../../models/sighting_post');
-const Identification = require('../../models/identification');
 
+/**
+ * Inserts a sighting post into the database.
+ *
+ * @param req
+ * @param res
+ */
 const insertSightingPost = (req, res) => {
-  console.log('Reaching till controller');
   const {
     image, timestamp, location, description, user_nickname, identification,
   } = req.body;

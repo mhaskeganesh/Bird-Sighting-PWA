@@ -11858,12 +11858,20 @@ textarea.form-control-lg {
   transform: scale(1.02);
 }
 
+.flex-basis-50 {
+  flex-basis: 50%;
+}
+
+#error-message {
+  display: none;
+}
+
 /*
  * Always set the map height explicitly to define the size of the div element
  * that contains the map.
  */
 #gmap {
-  height: 500px;
+  height: 300px;
 }
 
 /*
@@ -11885,6 +11893,35 @@ textarea.form-control-lg {
 }
 .custom-map-control-button:hover {
   background: rgb(235, 235, 235);
+}
+
+#sighting-image {
+  width: 100%;
+  height: 100%;
+  max-height: 500px;
+  object-fit: contain;
+}
+
+.sighting-comment-section {
+  width: 100%;
+  height: 200px;
+  margin-top: 50px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  padding: 20px;
+}
+
+#messages {
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.message_box > * {
+  margin: 2px;
+}
+
+#messageForm {
+  display: none;
 }
 
 /*# sourceMappingURL=app.css.map */

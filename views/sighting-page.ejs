@@ -1,76 +1,92 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Sighting Detail Page</title>
-    <%- include("base-header"); -%>
-    <style>
-        .container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            margin-top: 50px;
-        }
-        #sighting-image {
-            width: 500px;
-            height: 300px;
-            max-height: 500px;
-            object-fit: cover;
-        }
-        .sighting-details {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 20px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-        }
-        .sighting-comment-section {
-
-            width: 100%;
-            height: 200px;
-            margin-top: 50px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            padding: 20px;
-
-        }
-        #messages{
-            overflow-y: auto;
-            height: 100px;
-        }
-        .message_box > *{
-            margin: 2px;
-        }
-    </style>
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-</head>
-<body>
-<div class="container">
-    <a href="/">
-        <button>Home Page</button></a>
-
-    <img id="sighting-image" src="" alt="Sighting Image" />
-    <div class="sighting-details">
-        <div class="sighting-info">
-            Date: <span id="date"></span><br>
-            Description: <span id="desc"></span><br>
-            User Nickname: <span id="username"></span><br>
+    <head>
+        <title>Sighting Detail Page</title>
+        <%- include("base-header"); -%>
+        <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    </head>
+    <body>
+    <div class="modal fade" id="birdDetailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bird_modal_title">Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="bird_modal_description"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
         </div>
     </div>
-        <div class="sighting-comment-section border rounded-5 m-5">
-            <div class=" mt-auto">
-                <div id="messages"></div>
-                <div class="d-flex message_box flex-row mb-3 mx-2 ">
-                    <input class="input-group-text" type="text" id="name" style=display:block name="name" placeholder="Your name">
-                    <input class="input-group-text w-75" type="text" id="message-input">
-                    <button type="button" class="w-25 btn btn-primary" onclick=sendmessage(event)>Send</button>
+    <%- include("navbar"); -%>
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-md-6">
+                    <img id="sighting-image" src="" alt="Sighting Image" />
                 </div>
-                <script src="/javascripts/socketHandler.js"></script>
-</div>
-    </div>
-</div>
-</body>
-<script src="/javascripts/sighting-page.js"></script>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="sighting-info">
+                                <h1 id="bird-name"></h1>
+
+                                <p id="bird-description"></p>
+
+                                <div id="gmap"></div>
+
+                                <p class="mb-0 mt-3"><b id="user-name"></b></p>
+                                <p id="user-date"></p>
+                            </div>
+
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#birdDetailModal" onclick="setBirdDetails()">View Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-5">
+                <div class="card-body">
+                    <h4>Chat</h4>
+                    <hr />
+                    <div id="messages"></div>
+                    <div class="d-flex">
+
+                        <form class="w-100" id="userNameForm" onsubmit="connectToRoom(event)">
+                            <div class="row">
+                                <div class="col-md-11" id="message-name-wrapper">
+                                    <input class="form-control" type="text" id="name" name="name" placeholder="Your name">
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="submit" class="btn btn-primary w-100">Send</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <form class="w-100" id="messageForm" onsubmit="sendMessage(event)">
+                            <div class="row">
+                                <div class="col-md-11" id="message-input-wrapper">
+                                    <input class="form-control" placeholder="Enter your message"  type="text" id="message-input">
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="submit" class="btn btn-primary w-100">Send</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <%- include("base-footer"); -%>
+    <script>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
+      ({key: "AIzaSyCtdUKuO9tYG2TMvHEh5Tjl0FuxB4N5i8Q", v: "weekly"});</script>
+    <script src="/javascripts/google-map-show-location.js"></script>
+    <script src="/javascripts/socketHandler.js"></script>
+    <script src="/javascripts/sighting-page.js"></script>
+
 </html>

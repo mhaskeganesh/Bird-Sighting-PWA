@@ -5,7 +5,6 @@
  * */
 const mongoose = require('mongoose');
 // eslint-disable-next-line import/extensions
-const Identification = require('./identification.js');
 
 const { Schema } = mongoose;
 
@@ -14,14 +13,24 @@ const sightingPostSchema = new Schema({
   timestamp: String,
   description: String,
   user_nickname: { type: String, required: true },
+
   location: {
     latitude: String,
     longitude: String,
   },
+
   identification: {
     name: String,
     dbpedia_uri: String,
+    abstract: String,
   },
+
+  chat: [
+    {
+      user: String,
+      message: String,
+    },
+  ],
 });
 
 const SightingPost = mongoose.model('sighting_post', sightingPostSchema);

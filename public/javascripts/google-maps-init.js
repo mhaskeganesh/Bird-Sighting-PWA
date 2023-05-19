@@ -1,21 +1,23 @@
-// Note: This example requires that you consent to location sharing when
-// prompted by your browser. If you see the error "The Geolocation service
-// failed.", it means you probably did not give permission for the browser to
-// locate you.
 let map; let
   infoWindow;
 
+/**
+ * Initialize the map
+ */
 function initMap() {
   map = new google.maps.Map(document.getElementById('gmap'), {
     center: { lat: 53.38, lng: -1.4691 },
     zoom: 11,
   });
+  infoWindow = new google.maps.InfoWindow();
 
+  // Try HTML5 geolocation.
   const locationButton = document.createElement('div');
-
   locationButton.textContent = 'Pan to Current Location';
   locationButton.classList.add('custom-map-control-button');
+
   map.controls[google.maps.ControlPosition.TOP_CENTER].push(locationButton);
+
   locationButton.addEventListener('click', () => {
     // Try HTML5 geolocation.
     if (navigator.geolocation) {
@@ -39,11 +41,13 @@ function initMap() {
         },
         () => {
           handleLocationError(true, infoWindow, map.getCenter());
+          setErrorMessage('Please enable location in your browser');
         },
       );
     } else {
       // Browser doesn't support Geolocation
       handleLocationError(false, infoWindow, map.getCenter());
+      setErrorMessage('Sorry your browser doesn\'t support location services');
     }
   });
 }

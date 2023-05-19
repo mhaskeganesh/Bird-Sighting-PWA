@@ -5,6 +5,16 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js');
 }
 
+const setErrorMessage = (msg) => {
+  const alertMessage = document.getElementById('error-message');
+
+  alertMessage.style.display = 'block';
+  alertMessage.innerHTML = msg;
+
+  // scroll to top
+  window.scrollTo(0, 0);
+};
+
 /**
  * This function is called when a user submits a form for inserting a new post.
  * It first prevents the default form submission behavior.
@@ -18,15 +28,25 @@ function handleSubmit(event) {
   const form = event.target;
   const formData = new FormData(form);
 
+  // eslint-disable-next-line
+  let latitude, longitude, birdName, dbpediaUri, birdAbstract;
   // Process Identification
-  const processedIdentification = formData.get('identification').split(';');
-  const birdName = processedIdentification[0];
-  const dbpediaUri = processedIdentification[1];
+  let processedIdentification = formData.get('identification');
+  if (processedIdentification && processedIdentification !== '') {
+    processedIdentification = processedIdentification.split(';');
+    [dbpediaUri, birdName, birdAbstract] = processedIdentification;
+  } else {
+    // return setErrorMessage('Please select a bird name');
+  }
 
   // Process Location;
-  const processedLocation = formData.get('location').split(';');
-  const latitude = processedLocation[0];
-  const longitude = processedLocation[1];
+  let processedLocation = formData.get('location_data');
+  if (processedLocation && processedLocation !== '') {
+    processedLocation = processedLocation.split(';');
+    [latitude, longitude] = processedLocation;
+  } else {
+    // return setErrorMessage('Please select a location');
+  }
 
   const dataBody = {
     image: document.getElementById('bird_image').dataset.base64,
@@ -40,6 +60,7 @@ function handleSubmit(event) {
     identification: {
       name: birdName,
       dbpedia_uri: dbpediaUri,
+      abstract: birdAbstract,
     },
   };
   const headers = new Headers();
@@ -79,28 +100,44 @@ function imageUploaded() {
   reader.readAsDataURL(file);
 }
 
+/**
+ * SPARQL query to retrieve bird names and abstracts from DBpedia.
+ *
+ * @type {string}
+ */
 const sparqlQuery = `
   PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
   PREFIX dbo: <http://dbpedia.org/ontology/>
   
-  SELECT ?bird ?name
+  SELECT ?bird ?name ?abstract
   WHERE 
   {
     ?bird rdf:type dbo:Bird .
     ?bird rdfs:label ?name .
-    FILTER (lang(?name) = "en")
+    ?bird dbo:abstract ?abstract .
+    FILTER (lang(?name) = "en" && lang(?abstract) = "en")
   }
 `;
 
+/**
+ * SPARQL endpoint for DBpedia.
+ *
+ * @type {string}
+ */
 const sparqlEndpoint = 'http://dbpedia.org/sparql';
 
+/**
+ * This function sends a GET request to the DBpedia SPARQL endpoint with the sparqlQuery as query parameter.
+ *
+ * @returns {Promise<*>}
+ */
 async function getBirds() {
   try {
     const response = await fetch(`${sparqlEndpoint}?query=${encodeURIComponent(sparqlQuery)}&format=json`);
     const data = await response.json();
     const birds = data.results.bindings.map((binding) => ({
-      value: `${binding.bird.value};${binding.name.value}`,
+      value: `${binding.bird.value};${binding.name.value};${binding.abstract.value}`,
       label: binding.name.value,
     }));
     return birds;
@@ -109,6 +146,9 @@ async function getBirds() {
   }
 }
 
+/**
+ * This function initiates the Choices library for the identification dropdown.
+ */
 const initiateChoices = () => {
   const element = document.querySelector('#identification');
   // Added via CDN

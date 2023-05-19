@@ -12,28 +12,31 @@
                             Sort By
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Date</a></li>
-                            <li><a class="dropdown-item" href="#">Location</a></li>
+                            <li><a class="dropdown-item" onclick="sortPostByAscendingOrder()">Date (First Added)</a></li>
+                            <li><a class="dropdown-item" onclick="sortPostByDescendingOrder()">Date (Recent)</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
             <div id="listing-card-wrapper" class="row gy-4">
-                <div id="listing-card-template" class="col-md-4  d-none">
-                    <div class="listing-card  card h-100 ">
-                        <img></img>
-                        <div class="card-body">
-                            <p id="listing-description">Sample Description</h2>
 
-                            <h6 id="listing-user-name">User</h6>
-                            <p id="listing-user-time-stamp">12 November 2020</p>
-                        </div>
-                    </div>
-                </div>
 
             </div>
 
             <div id="images-container" class="grid-container"></div>
+
+            <!-- Listing Card Template -->
+            <div id="listing-card-template" class="col-md-4  d-none">
+                <div class="listing-card  card h-100 ">
+                    <img></img>
+                    <div class="card-body">
+                        <p id="listing-description">Sample Description</h2>
+
+                        <h6 id="listing-user-name">User</h6>
+                        <p id="listing-user-time-stamp">12 November 2020</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </body>
     <%- include("base-footer"); -%>
