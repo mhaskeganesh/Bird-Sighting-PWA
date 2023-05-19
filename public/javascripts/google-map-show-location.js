@@ -1,5 +1,11 @@
 let map;
 
+/**
+ * Initialize the map
+ *
+ * @param locationData
+ * @returns {Promise<void>}
+ */
 async function initMap(locationData) {
   const { Map } = await google.maps.importLibrary('maps');
   map = new Map(document.getElementById('gmap'), {

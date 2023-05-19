@@ -3,6 +3,12 @@
  */
 const SightingPost = require('../../models/sighting_post');
 
+/**
+ * Inserts a sighting post into the database.
+ *
+ * @param req
+ * @param res
+ */
 const insertSightingPost = (req, res) => {
   const {
     image, timestamp, location, description, user_nickname, identification,

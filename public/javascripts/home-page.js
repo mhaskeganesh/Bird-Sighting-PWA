@@ -54,6 +54,14 @@ const requestIDB = (() => {
 }
 )();
 
+/**
+ * This method is used to render Card to the DOM
+ * Targets the listing-card-wrapper and clones the template
+ * Updates the template with the data from the post
+ * Adds the event listener to the card
+ * Appends it to the listing-card-wrapper
+ * @param posts
+ */
 const renderListingCards = (posts) => {
   console.log(posts);
 
@@ -94,6 +102,9 @@ const renderListingCards = (posts) => {
   });
 };
 
+/**
+ * This method is used to render the posts to the DOM in descending order based on date added
+ */
 const sortPostByDescendingOrder = () => {
   // sort allPosts based on timestamp in descending order
   const sortedPosts = allPosts.sort((a, b) => {
@@ -105,6 +116,9 @@ const sortPostByDescendingOrder = () => {
   renderListingCards(sortedPosts);
 };
 
+/**
+ * This method is used to render the posts to the DOM in ascending order based on date added
+ */
 const sortPostByAscendingOrder = () => {
   // sort allPosts based on timestamp in ascending order
   const sortedPosts = allPosts.sort((a, b) => {
